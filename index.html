@@ -1,15 +1,81 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Riley Portfolio</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Riley Taylor | Portfolio</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Grotesk:wght@400;600&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css" />
 </head>
-
 <body>
-  <h1>Hello, world!</h1>
-  <p>Portfolio site coming soon…....</p>
+
+  <header class="system-header">
+    <div class="brand">RILEY_TAYLOR // v2.0</div>
+    <div class="status-box">
+      <span class="pulse"></span> 
+      <span class="status-text">SYSTEM_ACTIVE</span>
+    </div>
+  </header>
+
+  <div class="grid-container">
+    <aside class="sidebar">
+      <nav class="filter-nav">
+        <div class="nav-label">Browse Categories</div>
+        <button data-filter="all" class="active">All Projects</button>
+        <button data-filter="eng">Engineering</button>
+        <button data-filter="3d">3D & Visual</button>
+        <button data-filter="photo">Photography</button>
+        <button data-filter="audio">Audio & DSP</button>
+        <button data-filter="web">Web Development</button>
+      </nav>
+    </aside>
+
+    <main class="timeline">
+      <article class="project" data-tags="eng">
+        <div class="proj-header">
+          <span class="mono-tag">2026.Q1</span>
+          <span class="mono-cat">Engineering</span>
+        </div>
+        <h2>FPGA Oscilloscope</h2>
+        <p>High-speed signal capture using Verilog and an onboard DAC. Designed for sub-millisecond precision in lab environments.</p>
+        <div class="stack">STACK: [VERILOG] [VIVADO] [FPGA]</div>
+      </article>
+
+      <article class="project" data-tags="photo">
+        <div class="proj-header">
+          <span class="mono-tag">2025.Q4</span>
+          <span class="mono-cat">Photography</span>
+        </div>
+        <h2>Industrial Textures</h2>
+        <p>A macro-photography study exploring machinery oxidation, captured with a Sony a6400.</p>
+        <div class="stack">GEAR: [SONY A6400] [90MM MACRO] [LR]</div>
+      </article>
+
+      <article class="project" data-tags="3d">
+        <div class="proj-header">
+          <span class="mono-tag">2025.Q3</span>
+          <span class="mono-cat">3D Visual</span>
+        </div>
+        <h2>Kinetic Mechanism</h2>
+        <p>Rigid-body physics simulation of complex gear assemblies with hardware-accurate motion blur.</p>
+        <div class="stack">TOOLS: [BLENDER] [GEOMETRY_NODES]</div>
+      </article>
+
+      <article class="project" data-tags="audio">
+        <div class="proj-header">
+          <span class="mono-tag">2025.Q2</span>
+          <span class="mono-cat">Audio & DSP</span>
+        </div>
+        <h2>VST3 Limiter</h2>
+        <p>Look-ahead brickwall limiter developed in C++ for professional studio routing.</p>
+        <div class="stack">STACK: [C++] [JUCE] [DSP]</div>
+      </article>
+    </main>
+  </div>
+
   <script src="js/script.js"></script>
 </body>
 </html>

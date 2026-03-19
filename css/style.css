@@ -1,6 +1,231 @@
+:root {
+  --bg: #f5f5f7;
+  --card-bg: #ffffff;
+  --text: #1d1d1f;
+  --text-dim: #86868b;
+  --accent: #0071e3;
+  --border: rgba(0, 0, 0, 0.1);
+  --glass: rgba(255, 255, 255, 0.7);
+  --mono: 'JetBrains Mono', monospace;
+  --header: 'Space Grotesk', sans-serif;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #000000;
+    --card-bg: #1c1c1e;
+    --text: #f5f5f7;
+    --text-dim: #a1a1a6;
+    --accent: #0a84ff;
+    --border: rgba(255, 255, 255, 0.1);
+    --glass: rgba(28, 28, 30, 0.8);
+  }
+}
 
 body {
-  font-family: sans-serif;
-  padding: 2rem;
-  color: #333;
+  margin: 0;
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Glass Header */
+.system-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  background: var(--glass);
+  display: flex;
+  justify-content: space-between;
+  padding: 1rem 2rem;
+  border-bottom: 1px solid var(--border);
+  font-family: var(--mono);
+  font-size: 0.75rem;
+}
+
+.pulse {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  background: #34c759;
+  border-radius: 50%;
+  margin-right: 6px;
+  box-shadow: 0 0 10px rgba(52, 199, 89, 0.5);
+}
+
+/* Grid System */
+.grid-container {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 4rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 4rem 2rem;
+}
+
+/* Floating Sidebar */
+.sidebar {
+  position: sticky;
+  top: 6rem;
+  height: fit-content;
+}
+
+.filter-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  background: var(--glass);
+  padding: 1.5rem;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+}
+
+.nav-label {
+  font-family: var(--header);
+  font-weight: 600;
+  font-size: 0.8rem;
+  margin-bottom: 0.8rem;
+  color: var(--text-dim);
+}
+
+.filter-nav button {
+  background: transparent;
+  border: none;
+  text-align: left;
+  padding: 0.6rem 1rem;
+  border-radius: 10px;
+  color: var(--text-dim);
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.filter-nav button:hover {
+  background: rgba(0, 113, 227, 0.1);
+  color: var(--accent);
+}
+
+.filter-nav button.active {
+  background: var(--accent);
+  color: white;
+}
+
+/* Projects */
+.timeline {
+  border-left: 1px solid var(--border);
+  padding-left: 3rem;
+}
+
+.project {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  padding: 3rem;
+  border-radius: 28px;
+  margin-bottom: 6rem;
+  opacity: 0.1;
+  transform: translateY(30px) scale(0.95);
+  transition: all 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.project.is-visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.proj-header {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.mono-tag { color: var(--accent); font-weight: 600; }
+.mono-cat { color: var(--text-dim); text-transform: uppercase; }
+
+.project h2 {
+  font-family: var(--header);
+  font-size: 2.2rem;
+  margin: 0 0 1rem 0;
+  letter-spacing: -0.02em;
+}
+
+.project p {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  color: var(--text-dim);
+}
+
+.stack {
+  margin-top: 2rem;
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  color: var(--text-dim);
+  opacity: 0.6;
+}
+
+/* Filtering Utility */
+.filtered-out {
+  display: none;
+}
+
+/* --- RESPONSIVE OVERRIDES --- */
+
+@media (max-width: 1024px) {
+  .grid-container {
+    grid-template-columns: 1fr; /* Collapse to single column */
+    gap: 2rem;
+    padding: 2rem 1rem;
+  }
+
+  .sidebar {
+    position: sticky;
+    top: 4rem; /* Sit below the system header */
+    z-index: 90;
+    margin-bottom: 2rem;
+    width: 100%;
+  }
+
+  .filter-nav {
+    flex-direction: row; /* Horizontal layout for mobile */
+    overflow-x: auto; /* Allow swiping through categories */
+    white-space: nowrap;
+    padding: 0.8rem;
+    border-radius: 12px;
+    gap: 0.8rem;
+    /* Hide scrollbar for a cleaner Apple look */
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .filter-nav::-webkit-scrollbar {
+    display: none;
+  }
+
+  .nav-label {
+    display: none; /* Remove label to save space on mobile */
+  }
+
+  .filter-nav button {
+    padding: 0.5rem 1rem;
+    font-size: 0.85rem;
+    flex-shrink: 0; /* Prevent buttons from squishing */
+  }
+
+  .timeline {
+    padding-left: 0;
+    border-left: none; /* Remove the vertical line on mobile for more space */
+  }
+
+  .project {
+    padding: 2rem 1.5rem; /* Tighter padding for mobile screens */
+    margin-bottom: 3rem;
+  }
+
+  .project h2 {
+    font-size: 1.6rem; /* Scaled down header */
+  }
 }
