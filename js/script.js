@@ -47,5 +47,35 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }, observerOptions);
 
+  // --- PART 3: SYSTEM MONITOR LOGIC ---
+function updateSystemStats() {
+  // 1. Get Resolution
+  const width = window.innerWidth;
+  const height = window.innerHeight;
+  document.getElementById('screen-res').textContent = `${width} x ${height}`;
+
+  // 2. Simple Browser Detection
+  const agent = navigator.userAgent;
+  let browser = "Unknown";
+  if (agent.includes("Chrome")) browser = "Chrome";
+  else if (agent.includes("Safari")) browser = "Safari";
+  else if (agent.includes("Firefox")) browser = "Firefox";
+  document.getElementById('browser-info').textContent = browser.toUpperCase();
+
+  // 3. Connection Status
+  const isOnline = navigator.onLine;
+  const connDisplay = document.getElementById('connection-speed');
+  connDisplay.textContent = isOnline ? "STABLE" : "OFFLINE";
+  connDisplay.style.color = isOnline ? "var(--accent)" : "#ff3b30";
+
+  // 4. Timezone
+  const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  document.getElementById('local-tz').textContent = tz.replace('_', ' ');
+}
+
+// Initial call and update on resize
+updateSystemStats();
+window.addEventListener('resize', updateSystemStats);
+
   projects.forEach(p => observer.observe(p));
 });

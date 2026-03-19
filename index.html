@@ -4,75 +4,105 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Riley Taylor | Portfolio</title>
-  
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Grotesk:wght@400;600&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=Space+Grotesk:wght@300;400&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
 
   <header class="system-header">
-    <div class="brand">RILEY_TAYLOR // v2.0</div>
+    <div class="brand">RILEY_TAYLOR</div>
     <div class="status-box">
-      <span class="pulse"></span> 
-      <span class="status-text">SYSTEM_ACTIVE</span>
+      <span class="pulse"></span>
+      <span class="status-text">SEATTLE, WA // SYSTEM_ACTIVE</span>
     </div>
   </header>
 
   <div class="grid-container">
     <aside class="sidebar">
       <nav class="filter-nav">
-        <div class="nav-label">Browse Categories</div>
         <button data-filter="all" class="active">All Projects</button>
         <button data-filter="eng">Engineering</button>
+        <button data-filter="web">Web & Data</button>
         <button data-filter="3d">3D & Visual</button>
         <button data-filter="photo">Photography</button>
         <button data-filter="audio">Audio & DSP</button>
-        <button data-filter="web">Web Development</button>
       </nav>
     </aside>
 
     <main class="timeline">
+      
       <article class="project" data-tags="eng">
         <div class="proj-header">
-          <span class="mono-tag">2026.Q1</span>
           <span class="mono-cat">Engineering</span>
+          <span class="mono-tag">2026.03</span>
         </div>
         <h2>FPGA Oscilloscope</h2>
         <p>High-speed signal capture using Verilog and an onboard DAC. Designed for sub-millisecond precision in lab environments.</p>
-        <div class="stack">STACK: [VERILOG] [VIVADO] [FPGA]</div>
+        <div class="stack">verilog, vivado, fpga</div>
+      </article>
+
+      <article class="project" data-tags="web">
+        <div class="proj-header">
+          <span class="mono-cat">Web & Data</span>
+          <span class="mono-tag">2026.01</span>
+        </div>
+        <h2>Equity Vesting Tracker</h2>
+        <p>A minimalist, secure dashboard built to track RSU and ESPP vesting schedules against real-time market data and tax implications.</p>
+        <div class="stack">javascript, react, chart.js</div>
       </article>
 
       <article class="project" data-tags="photo">
         <div class="proj-header">
-          <span class="mono-tag">2025.Q4</span>
           <span class="mono-cat">Photography</span>
+          <span class="mono-tag">2025.12</span>
         </div>
-        <h2>Industrial Textures</h2>
-        <p>A macro-photography study exploring machinery oxidation, captured with a Sony a6400.</p>
-        <div class="stack">GEAR: [SONY A6400] [90MM MACRO] [LR]</div>
+        <h2>Cascade Winter Series</h2>
+        <p>High-contrast, raw alpine photography capturing historic, rustic resort atmospheres in the Washington backcountry.</p>
+        <div class="stack">sony a6400, lightroom</div>
       </article>
 
       <article class="project" data-tags="3d">
         <div class="proj-header">
-          <span class="mono-tag">2025.Q3</span>
           <span class="mono-cat">3D Visual</span>
+          <span class="mono-tag">2025.10</span>
         </div>
-        <h2>Kinetic Mechanism</h2>
-        <p>Rigid-body physics simulation of complex gear assemblies with hardware-accurate motion blur.</p>
-        <div class="stack">TOOLS: [BLENDER] [GEOMETRY_NODES]</div>
+        <h2>Shardblade Concept Render</h2>
+        <p>High-fidelity 3D modeling of epic fantasy weaponry, focusing on complex crystalline material shaders and subsurface scattering.</p>
+        <div class="stack">blender, octane render</div>
       </article>
 
       <article class="project" data-tags="audio">
         <div class="proj-header">
-          <span class="mono-tag">2025.Q2</span>
           <span class="mono-cat">Audio & DSP</span>
+          <span class="mono-tag">2025.08</span>
         </div>
-        <h2>VST3 Limiter</h2>
-        <p>Look-ahead brickwall limiter developed in C++ for professional studio routing.</p>
-        <div class="stack">STACK: [C++] [JUCE] [DSP]</div>
+        <h2>Broadcast Audio Chain</h2>
+        <p>A custom hardware-to-software routing setup optimizing a Shure MV7 with VST plugins for ultra-low latency streaming.</p>
+        <div class="stack">c++, virtual audio cable, dsp</div>
       </article>
+
+      <article class="project" data-tags="photo">
+        <div class="proj-header">
+          <span class="mono-cat">Photography</span>
+          <span class="mono-tag">2025.06</span>
+        </div>
+        <h2>Industrial Textures</h2>
+        <p>A macro-photography study exploring machinery oxidation and brutalist architecture around the Northgate area.</p>
+        <div class="stack">sony a6400, 90mm macro</div>
+      </article>
+
+      <article class="project" data-tags="eng">
+        <div class="proj-header">
+          <span class="mono-cat">Engineering</span>
+          <span class="mono-tag">2025.02</span>
+        </div>
+        <h2>Automated Network Auditor</h2>
+        <p>A local utility that recursively scans network folders and SharePoint to clean up naming formats and generate integrity reports.</p>
+        <div class="stack">node.js, sharepoint api, python</div>
+      </article>
+
     </main>
   </div>
 

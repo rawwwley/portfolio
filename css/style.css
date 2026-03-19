@@ -1,170 +1,171 @@
 :root {
-  --bg: #f5f5f7;
-  --card-bg: #ffffff;
-  --text: #1d1d1f;
-  --text-dim: #86868b;
-  --accent: #0071e3;
-  --border: rgba(0, 0, 0, 0.1);
-  --glass: rgba(255, 255, 255, 0.7);
+  --paper: #f8f7f5;       /* Warm, soft off-white */
+  --charcoal: #2c2c2e;    /* Soft black for primary text */
+  --fog: #86868b;         /* Apple's muted grey for inactive text */
+  --accent: #1d1d1f;      /* Deep ink for active states */
   --mono: 'JetBrains Mono', monospace;
   --header: 'Space Grotesk', sans-serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #000000;
-    --card-bg: #1c1c1e;
-    --text: #f5f5f7;
-    --text-dim: #a1a1a6;
-    --accent: #0a84ff;
-    --border: rgba(255, 255, 255, 0.1);
-    --glass: rgba(28, 28, 30, 0.8);
-  }
-}
-
 body {
   margin: 0;
-  background-color: var(--bg);
-  color: var(--text);
+  background-color: var(--paper);
+  color: var(--charcoal);
   font-family: 'Inter', -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
+  /* Adds a microscopic noise texture to simulate paper, completely optional */
+  /* background-image: url('data:image/svg+xml,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noiseFilter"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noiseFilter)" opacity="0.04"/%3E%3C/svg%3E'); */
 }
 
-/* Glass Header */
+/* Minimalist Header */
 .system-header {
-  position: sticky;
+position: fixed;
   top: 0;
-  z-index: 100;
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  background: var(--glass);
+  width: 100%;
+  box-sizing: border-box;
   display: flex;
   justify-content: space-between;
-  padding: 1rem 2rem;
-  border-bottom: 1px solid var(--border);
+  align-items: center; /* Ensures the dot aligns with the text */
+  padding: 2rem 4rem;
   font-family: var(--mono);
   font-size: 0.75rem;
+  color: var(--fog);
+  z-index: 100;
+  mix-blend-mode: multiply;
 }
 
+/* The new Seattle Paper Pulse */
 .pulse {
   display: inline-block;
-  width: 8px;
-  height: 8px;
-  background: #34c759;
+  width: 6px;
+  height: 6px;
+  background: #5b8266; /* A soft, muted moss/evergreen color */
   border-radius: 50%;
-  margin-right: 6px;
-  box-shadow: 0 0 10px rgba(52, 199, 89, 0.5);
+  margin-right: 8px;
+  vertical-align: middle;
+  transform: translateY(-1px); /* Optical alignment tweak */
+  animation: paper-breathe 3.5s ease-in-out infinite;
 }
 
-/* Grid System */
+@keyframes paper-breathe {
+  0%, 100% { opacity: 0.3; transform: translateY(-1px) scale(0.9); }
+  50% { opacity: 1; transform: translateY(-1px) scale(1.1); }
+}
+
+.status-box {
+  display: flex;
+  align-items: center;
+}
+
+/* Layout */
 .grid-container {
   display: grid;
-  grid-template-columns: 300px 1fr;
-  gap: 4rem;
+  grid-template-columns: 250px 1fr;
+  gap: 8rem;
   max-width: 1200px;
   margin: 0 auto;
-  padding: 4rem 2rem;
+  padding: 0 4rem;
 }
 
-/* Floating Sidebar */
+/* Vertically Centered Sidebar */
 .sidebar {
   position: sticky;
-  top: 6rem;
-  height: fit-content;
+  top: 0;
+  height: 100vh; /* Takes up full screen height */
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* Centers navigation vertically */
 }
 
 .filter-nav {
   display: flex;
   flex-direction: column;
-  gap: 0.4rem;
-  background: var(--glass);
-  padding: 1.5rem;
-  border-radius: 20px;
-  border: 1px solid var(--border);
-}
-
-.nav-label {
-  font-family: var(--header);
-  font-weight: 600;
-  font-size: 0.8rem;
-  margin-bottom: 0.8rem;
-  color: var(--text-dim);
+  gap: 1.5rem; /* Generous breathing room */
 }
 
 .filter-nav button {
   background: transparent;
   border: none;
   text-align: left;
-  padding: 0.6rem 1rem;
-  border-radius: 10px;
-  color: var(--text-dim);
-  font-size: 0.95rem;
+  padding: 0;
+  color: var(--fog);
+  font-size: 1.25rem;
+  font-weight: 400;
+  font-family: var(--header);
   cursor: pointer;
-  transition: all 0.2s ease;
+  /* Apple-style smooth elastic transition */
+  transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  transform-origin: left center;
 }
 
 .filter-nav button:hover {
-  background: rgba(0, 113, 227, 0.1);
-  color: var(--accent);
+  color: var(--charcoal);
+  transform: translateX(8px);
 }
 
 .filter-nav button.active {
-  background: var(--accent);
-  color: white;
+  color: var(--accent);
+  transform: translateX(12px) scale(1.05);
+  font-weight: 500;
+  /* Soft, diffused drop shadow replacing the background box */
+  text-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
 }
 
-/* Projects */
+/* Borderless Timeline */
 .timeline {
-  border-left: 1px solid var(--border);
-  padding-left: 3rem;
+  padding: 15vh 0; /* Pushes content down so it scrolls past the centered nav */
 }
 
 .project {
-  background: var(--card-bg);
-  border: 1px solid var(--border);
-  padding: 3rem;
-  border-radius: 28px;
-  margin-bottom: 6rem;
-  opacity: 0.1;
-  transform: translateY(30px) scale(0.95);
-  transition: all 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+  padding: 4rem 0;
+  margin-bottom: 2rem;
+  opacity: 0.2;
+  transform: translateY(20px);
+  transition: all 0.9s cubic-bezier(0.2, 0.8, 0.2, 1);
+  border-bottom: 1px solid rgba(0,0,0,0.04); /* Extremely faint separator like a notebook line */
+}
+
+.project:last-child {
+  border-bottom: none;
 }
 
 .project.is-visible {
   opacity: 1;
-  transform: translateY(0) scale(1);
+  transform: translateY(0);
 }
 
 .proj-header {
   display: flex;
   justify-content: space-between;
   font-family: var(--mono);
-  font-size: 0.75rem;
-  margin-bottom: 1.5rem;
+  font-size: 0.8rem;
+  margin-bottom: 1rem;
+  color: var(--fog);
 }
-
-.mono-tag { color: var(--accent); font-weight: 600; }
-.mono-cat { color: var(--text-dim); text-transform: uppercase; }
 
 .project h2 {
   font-family: var(--header);
-  font-size: 2.2rem;
+  font-size: 2.5rem;
+  font-weight: 400;
   margin: 0 0 1rem 0;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.03em;
+  color: var(--charcoal);
 }
 
 .project p {
-  font-size: 1.1rem;
-  line-height: 1.6;
-  color: var(--text-dim);
+  font-size: 1.15rem;
+  line-height: 1.7;
+  color: var(--charcoal);
+  max-width: 650px;
+  font-weight: 300;
 }
 
 .stack {
   margin-top: 2rem;
   font-family: var(--mono);
-  font-size: 0.7rem;
-  color: var(--text-dim);
-  opacity: 0.6;
+  font-size: 0.75rem;
+  color: var(--fog);
+  text-transform: lowercase; /* Lowercase monospace gives a sleek, terminal feel */
 }
 
 /* Filtering Utility */
@@ -172,60 +173,30 @@ body {
   display: none;
 }
 
-/* --- RESPONSIVE OVERRIDES --- */
-
+/* Mobile Responsiveness */
 @media (max-width: 1024px) {
-  .grid-container {
-    grid-template-columns: 1fr; /* Collapse to single column */
-    gap: 2rem;
-    padding: 2rem 1rem;
-  }
-
+  .system-header { padding: 1.5rem; }
+  .grid-container { grid-template-columns: 1fr; padding: 0 1.5rem; gap: 2rem; }
+  
   .sidebar {
-    position: sticky;
-    top: 4rem; /* Sit below the system header */
+    height: auto;
+    top: 4rem;
+    padding-top: 2rem;
+    background: var(--paper); /* Prevents text clashing on scroll */
     z-index: 90;
-    margin-bottom: 2rem;
-    width: 100%;
   }
-
+  
   .filter-nav {
-    flex-direction: row; /* Horizontal layout for mobile */
-    overflow-x: auto; /* Allow swiping through categories */
-    white-space: nowrap;
-    padding: 0.8rem;
-    border-radius: 12px;
-    gap: 0.8rem;
-    /* Hide scrollbar for a cleaner Apple look */
+    flex-direction: row;
+    overflow-x: auto;
+    padding-bottom: 1rem;
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
+  .filter-nav::-webkit-scrollbar { display: none; }
+  .filter-nav button { font-size: 1.1rem; flex-shrink: 0; }
+  .filter-nav button:hover, .filter-nav button.active { transform: translateY(-4px) scale(1.05); }
   
-  .filter-nav::-webkit-scrollbar {
-    display: none;
-  }
-
-  .nav-label {
-    display: none; /* Remove label to save space on mobile */
-  }
-
-  .filter-nav button {
-    padding: 0.5rem 1rem;
-    font-size: 0.85rem;
-    flex-shrink: 0; /* Prevent buttons from squishing */
-  }
-
-  .timeline {
-    padding-left: 0;
-    border-left: none; /* Remove the vertical line on mobile for more space */
-  }
-
-  .project {
-    padding: 2rem 1.5rem; /* Tighter padding for mobile screens */
-    margin-bottom: 3rem;
-  }
-
-  .project h2 {
-    font-size: 1.6rem; /* Scaled down header */
-  }
+  .timeline { padding: 2vh 0; }
+  .project h2 { font-size: 2rem; }
 }
