@@ -7,24 +7,22 @@ document.addEventListener('DOMContentLoaded', () => {
     btn.addEventListener('click', () => {
       const filter = btn.dataset.filter;
 
-      // Update active button styling
+      // Update active state
       buttons.forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
 
-      // Project filtering
+      // Filter projects
       projects.forEach(proj => {
         const tags = proj.dataset.tags.split(' ');
         if (filter === 'all' || tags.includes(filter)) {
           proj.classList.remove('filtered-out');
-          observer.observe(proj); // Ensure the scroll observer watches it again
+          observer.observe(proj); // Re-trigger the scroll animation
         } else {
           proj.classList.add('filtered-out');
         }
       });
 
-      // --- NEW: MOBILE SCROLL LOGIC GOES HERE ---
-      // If the screen is mobile-sized, scroll to the top of the timeline
-      // so the user sees the filtered results immediately.
+      // Mobile behavior: scroll to top of timeline when changing categories
       if (window.innerWidth < 1024) {
         window.scrollTo({
           top: document.querySelector('.timeline').offsetTop - 120,
@@ -36,7 +34,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // 2. Intersection Observer (Scroll Reveal)
   const observerOptions = {
-    threshold: 0.15
+    root: null,
+    rootMargin: '0px 0px -5% 0px', // Triggers right as it enters the viewport
+    threshold: 0.02 // Extremely low threshold so tall mobile cards trigger instantly
   };
 
   const observer = new IntersectionObserver((entries) => {
@@ -46,36 +46,6 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   }, observerOptions);
-
-  // --- PART 3: SYSTEM MONITOR LOGIC ---
-function updateSystemStats() {
-  // 1. Get Resolution
-  const width = window.innerWidth;
-  const height = window.innerHeight;
-  document.getElementById('screen-res').textContent = `${width} x ${height}`;
-
-  // 2. Simple Browser Detection
-  const agent = navigator.userAgent;
-  let browser = "Unknown";
-  if (agent.includes("Chrome")) browser = "Chrome";
-  else if (agent.includes("Safari")) browser = "Safari";
-  else if (agent.includes("Firefox")) browser = "Firefox";
-  document.getElementById('browser-info').textContent = browser.toUpperCase();
-
-  // 3. Connection Status
-  const isOnline = navigator.onLine;
-  const connDisplay = document.getElementById('connection-speed');
-  connDisplay.textContent = isOnline ? "STABLE" : "OFFLINE";
-  connDisplay.style.color = isOnline ? "var(--accent)" : "#ff3b30";
-
-  // 4. Timezone
-  const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-  document.getElementById('local-tz').textContent = tz.replace('_', ' ');
-}
-
-// Initial call and update on resize
-updateSystemStats();
-window.addEventListener('resize', updateSystemStats);
 
   projects.forEach(p => observer.observe(p));
 });

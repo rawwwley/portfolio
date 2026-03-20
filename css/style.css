@@ -1,8 +1,8 @@
 :root {
-  --paper: #f8f7f5;       /* Warm, soft off-white */
-  --charcoal: #2c2c2e;    /* Soft black for primary text */
-  --fog: #86868b;         /* Apple's muted grey for inactive text */
-  --accent: #1d1d1f;      /* Deep ink for active states */
+  --paper: #f8f7f5;
+  --charcoal: #2c2c2e;
+  --fog: #86868b;
+  --accent: #1d1d1f;
   --mono: 'JetBrains Mono', monospace;
   --header: 'Space Grotesk', sans-serif;
 }
@@ -13,48 +13,45 @@ body {
   color: var(--charcoal);
   font-family: 'Inter', -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
-  /* Adds a microscopic noise texture to simulate paper, completely optional */
-  /* background-image: url('data:image/svg+xml,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noiseFilter"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noiseFilter)" opacity="0.04"/%3E%3C/svg%3E'); */
 }
 
-/* Minimalist Header */
+/* System Header & Pulse */
 .system-header {
-position: fixed;
+  position: fixed;
   top: 0;
   width: 100%;
   box-sizing: border-box;
   display: flex;
   justify-content: space-between;
-  align-items: center; /* Ensures the dot aligns with the text */
+  align-items: center;
   padding: 2rem 4rem;
   font-family: var(--mono);
   font-size: 0.75rem;
   color: var(--fog);
   z-index: 100;
-  mix-blend-mode: multiply;
+  mix-blend-mode: multiply; 
 }
 
-/* The new Seattle Paper Pulse */
+.status-box {
+  display: flex;
+  align-items: center;
+}
+
 .pulse {
   display: inline-block;
   width: 6px;
   height: 6px;
-  background: #5b8266; /* A soft, muted moss/evergreen color */
+  background: #5b8266; 
   border-radius: 50%;
   margin-right: 8px;
   vertical-align: middle;
-  transform: translateY(-1px); /* Optical alignment tweak */
+  transform: translateY(-1px);
   animation: paper-breathe 3.5s ease-in-out infinite;
 }
 
 @keyframes paper-breathe {
   0%, 100% { opacity: 0.3; transform: translateY(-1px) scale(0.9); }
   50% { opacity: 1; transform: translateY(-1px) scale(1.1); }
-}
-
-.status-box {
-  display: flex;
-  align-items: center;
 }
 
 /* Layout */
@@ -67,20 +64,20 @@ position: fixed;
   padding: 0 4rem;
 }
 
-/* Vertically Centered Sidebar */
+/* Centered Sidebar Navigation */
 .sidebar {
   position: sticky;
   top: 0;
-  height: 100vh; /* Takes up full screen height */
+  height: 100vh;
   display: flex;
   flex-direction: column;
-  justify-content: center; /* Centers navigation vertically */
+  justify-content: center;
 }
 
 .filter-nav {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem; /* Generous breathing room */
+  gap: 1.5rem;
 }
 
 .filter-nav button {
@@ -93,7 +90,6 @@ position: fixed;
   font-weight: 400;
   font-family: var(--header);
   cursor: pointer;
-  /* Apple-style smooth elastic transition */
   transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
   transform-origin: left center;
 }
@@ -107,13 +103,12 @@ position: fixed;
   color: var(--accent);
   transform: translateX(12px) scale(1.05);
   font-weight: 500;
-  /* Soft, diffused drop shadow replacing the background box */
   text-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
 }
 
-/* Borderless Timeline */
+/* Timeline & Projects */
 .timeline {
-  padding: 15vh 0; /* Pushes content down so it scrolls past the centered nav */
+  padding: 15vh 0;
 }
 
 .project {
@@ -122,7 +117,7 @@ position: fixed;
   opacity: 0.2;
   transform: translateY(20px);
   transition: all 0.9s cubic-bezier(0.2, 0.8, 0.2, 1);
-  border-bottom: 1px solid rgba(0,0,0,0.04); /* Extremely faint separator like a notebook line */
+  border-bottom: 1px solid rgba(0,0,0,0.04);
 }
 
 .project:last-child {
@@ -165,24 +160,32 @@ position: fixed;
   font-family: var(--mono);
   font-size: 0.75rem;
   color: var(--fog);
-  text-transform: lowercase; /* Lowercase monospace gives a sleek, terminal feel */
+  text-transform: lowercase;
 }
 
-/* Filtering Utility */
 .filtered-out {
   display: none;
 }
 
 /* Mobile Responsiveness */
 @media (max-width: 1024px) {
-  .system-header { padding: 1.5rem; }
-  .grid-container { grid-template-columns: 1fr; padding: 0 1.5rem; gap: 2rem; }
+  .system-header { 
+    padding: 1.5rem 1.5rem; 
+    box-sizing: border-box;
+  }
+  
+  .grid-container { 
+    grid-template-columns: 1fr; 
+    padding: 0 1.5rem; 
+    gap: 2rem; 
+    box-sizing: border-box;
+  }
   
   .sidebar {
     height: auto;
     top: 4rem;
     padding-top: 2rem;
-    background: var(--paper); /* Prevents text clashing on scroll */
+    background: var(--paper);
     z-index: 90;
   }
   
@@ -190,13 +193,33 @@ position: fixed;
     flex-direction: row;
     overflow-x: auto;
     padding-bottom: 1rem;
+    padding-right: 2rem; /* Fixes the right-edge cutoff */
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
-  .filter-nav::-webkit-scrollbar { display: none; }
-  .filter-nav button { font-size: 1.1rem; flex-shrink: 0; }
-  .filter-nav button:hover, .filter-nav button.active { transform: translateY(-4px) scale(1.05); }
   
-  .timeline { padding: 2vh 0; }
-  .project h2 { font-size: 2rem; }
+  .filter-nav::-webkit-scrollbar { 
+    display: none; 
+  }
+  
+  .filter-nav button { 
+    font-size: 1.1rem; 
+    flex-shrink: 0; 
+  }
+  
+  .filter-nav button:hover, .filter-nav button.active { 
+    transform: translateY(-4px) scale(1.05); 
+  }
+  
+  .timeline { 
+    padding: 2vh 0; 
+  }
+  
+  .project {
+    opacity: 0.35; /* Fixes heavily greyed-out un-scrolled items on mobile */
+  }
+  
+  .project h2 { 
+    font-size: 2rem; 
+  }
 }
