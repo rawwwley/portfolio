@@ -7,6 +7,20 @@
   --header: 'Space Grotesk', sans-serif;
 }
 
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  opacity: 0.03; /* Keep it extremely subtle */
+  pointer-events: none;
+  z-index: 9999;
+  background-image: url("https://www.transparenttextures.com/patterns/felt.png"); /* Subtle paper grain */
+}
+
+
 body {
   margin: 0;
   background-color: var(--paper);
@@ -108,16 +122,59 @@ body {
 
 /* Timeline & Projects */
 .timeline {
+  position: relative;
   padding: 15vh 0;
 }
 
+
+/* Vertical Signal Trace */
+/*
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: -4rem;
+  top: 0;
+  width: 1px;
+  height: 100%;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    var(--fog) 10%,
+    var(--fog) 90%,
+    transparent
+  );
+  opacity: 0.2;
+}
+*/
 .project {
+  position: relative;
   padding: 4rem 0;
   margin-bottom: 2rem;
-  opacity: 0.2;
-  transform: translateY(20px);
+  opacity: 0.1;
+  transform: translateY(30px);
   transition: all 0.9s cubic-bezier(0.2, 0.8, 0.2, 1);
   border-bottom: 1px solid rgba(0,0,0,0.04);
+}
+
+/* Signal Connection Points */
+/*
+.project::before {
+  content: '';
+  position: absolute;
+  left: -4.25rem;
+  top: 4.5rem;
+  width: 8px;
+  height: 8px;
+  background: var(--paper);
+  border: 1px solid var(--fog);
+  border-radius: 50%;
+  z-index: 2;
+  transition: all 0.5s ease;
+}
+*/
+.project.is-visible::before {
+  border-color: var(--charcoal);
+  background: var(--charcoal);
 }
 
 .project:last-child {
@@ -132,6 +189,8 @@ body {
 .proj-header {
   display: flex;
   justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem;
   font-family: var(--mono);
   font-size: 0.8rem;
   margin-bottom: 1rem;
@@ -168,58 +227,78 @@ body {
 }
 
 /* Mobile Responsiveness */
+/* Mobile Responsiveness Refined */
 @media (max-width: 1024px) {
   .system-header { 
     padding: 1.5rem 1.5rem; 
     box-sizing: border-box;
+    background: var(--paper); /* Ensures brand remains legible over scrolling text */
   }
   
   .grid-container { 
     grid-template-columns: 1fr; 
     padding: 0 1.5rem; 
-    gap: 2rem; 
+    gap: 1rem; /* Tighter gap for mobile "dossier" look */
     box-sizing: border-box;
   }
   
   .sidebar {
+    position: sticky;
+    top: 3.5rem; /* Sits right under the brand header */
     height: auto;
-    top: 4rem;
-    padding-top: 2rem;
+    padding: 1rem 0;
+    margin-bottom: 0;
     background: var(--paper);
+    border-bottom: 1px solid rgba(0,0,0,0.05); /* Technical separator line */
     z-index: 90;
   }
   
   .filter-nav {
     flex-direction: row;
+    gap: 2rem;
+    padding: 0 0.5rem;
     overflow-x: auto;
-    padding-bottom: 1rem;
-    padding-right: 2rem; /* Fixes the right-edge cutoff */
-    -ms-overflow-style: none;
     scrollbar-width: none;
+    /* This creates a subtle fade so users know they can scroll right */
+    mask-image: linear-gradient(to right, black 85%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to right, black 85%, transparent 100%);
   }
   
   .filter-nav::-webkit-scrollbar { 
     display: none; 
   }
-  
-  .filter-nav button { 
-    font-size: 1.1rem; 
-    flex-shrink: 0; 
+
+  .filter-nav button {
+    font-size: 0.75rem;
+    font-family: var(--mono);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+    color: var(--fog);
+    padding: 0.5rem 0;
   }
-  
-  .filter-nav button:hover, .filter-nav button.active { 
-    transform: translateY(-4px) scale(1.05); 
+
+  .filter-nav button.active {
+    transform: none; /* No desktop-style shifting on mobile */
+    color: var(--accent);
+    border-bottom: 1px solid var(--accent); /* Minimalist active indicator */
   }
-  
+
   .timeline { 
     padding: 2vh 0; 
   }
-  
-  .project {
-    opacity: 0.35; /* Fixes heavily greyed-out un-scrolled items on mobile */
-  }
-  
+
   .project h2 { 
-    font-size: 2rem; 
+    font-size: 1.8rem; /* Adjusted for mobile readability */
   }
+}
+
+  /* Hide the signal trace on mobile to save horizontal space */
+  .timeline::before, .project::before {
+    display: none;
+  }
+  
+  .timeline { padding: 2vh 0; }
+  .project { opacity: 0.35; }
+  .project h2 { font-size: 2rem; }
 }

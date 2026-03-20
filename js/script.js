@@ -16,13 +16,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const tags = proj.dataset.tags.split(' ');
         if (filter === 'all' || tags.includes(filter)) {
           proj.classList.remove('filtered-out');
-          observer.observe(proj); // Re-trigger the scroll animation
+          // Re-observe to trigger animations for newly shown items
+          observer.observe(proj); 
         } else {
           proj.classList.add('filtered-out');
         }
       });
 
-      // Mobile behavior: scroll to top of timeline when changing categories
+      // Mobile: Scroll to top of timeline on filter change
       if (window.innerWidth < 1024) {
         window.scrollTo({
           top: document.querySelector('.timeline').offsetTop - 120,
@@ -35,8 +36,8 @@ document.addEventListener('DOMContentLoaded', () => {
   // 2. Intersection Observer (Scroll Reveal)
   const observerOptions = {
     root: null,
-    rootMargin: '0px 0px -5% 0px', // Triggers right as it enters the viewport
-    threshold: 0.02 // Extremely low threshold so tall mobile cards trigger instantly
+    rootMargin: '0px 0px -10% 0px',
+    threshold: 0.05 
   };
 
   const observer = new IntersectionObserver((entries) => {
@@ -48,4 +49,24 @@ document.addEventListener('DOMContentLoaded', () => {
   }, observerOptions);
 
   projects.forEach(p => observer.observe(p));
+
+  // 3. Dynamic System Header
+  function updateSystemStatus() {
+    const statusText = document.querySelector('.status-text');
+    if (!statusText) return;
+
+    const now = new Date();
+    const timeStr = now.toLocaleTimeString('en-US', { 
+      hour12: false, 
+      hour: '2-digit', 
+      minute: '2-digit' 
+    });
+    
+    // Updates the display with a terminal-style status line
+    statusText.innerHTML = `SEATTLE, WA // SYS_T_MIN_${timeStr} // STATUS_OPTIMAL`;
+  }
+
+  // Initial call and set interval for every 10 seconds
+  updateSystemStatus();
+  setInterval(updateSystemStatus, 10000);
 });
