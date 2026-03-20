@@ -25,83 +25,241 @@
       <nav class="filter-nav">
         <button data-filter="all" class="active">All Projects</button>
         <button data-filter="eng">Engineering</button>
-        <button data-filter="web">Web & Data</button>
+        <button data-filter="web">Web & UX</button>
         <button data-filter="3d">3D & Visual</button>
         <button data-filter="photo">Photography</button>
         <button data-filter="audio">Audio & DSP</button>
+        <button data-filter="game">Game Design</button>
+        <button data-filter="video">Video & Film</button>
       </nav>
     </aside>
 
     <main class="timeline">
-      
-      <article class="project" data-tags="eng">
+
+      <!-- ============================================================
+           PROJECT: FPGA Oscilloscope
+           Media type: technical (spec block, no image container)
+           [SWAP] Update spec-row values with real project data
+           ============================================================ -->
+      <article class="project" data-tags="eng" data-media="technical">
         <div class="proj-header">
           <span class="mono-cat">Engineering</span>
           <span class="mono-tag">2026.03</span>
         </div>
         <h2>FPGA Oscilloscope</h2>
         <p>High-speed signal capture using Verilog and an onboard DAC. Designed for sub-millisecond precision in lab environments.</p>
-        <div class="stack">verilog, vivado, fpga</div>
-      </article>
-
-      <article class="project" data-tags="web">
-        <div class="proj-header">
-          <span class="mono-cat">Web & Data</span>
-          <span class="mono-tag">2026.01</span>
+        <!-- [SWAP] Replace spec values with real project specifications -->
+        <div class="tech-specs">
+          <div class="spec-row">
+            <span class="spec-label">PLATFORM</span>
+            <span class="spec-value">Xilinx Artix-7</span>
+          </div>
+          <div class="spec-row">
+            <span class="spec-label">LANGUAGE</span>
+            <span class="spec-value">Verilog HDL</span>
+          </div>
+          <div class="spec-row">
+            <span class="spec-label">SAMPLE_RATE</span>
+            <span class="spec-value">100 MSPS</span>
+          </div>
+          <div class="spec-row">
+            <span class="spec-label">STATUS</span>
+            <span class="spec-value">In Development</span>
+          </div>
         </div>
-        <h2>Equity Vesting Tracker</h2>
-        <p>A minimalist dashboard built to track RSU and ESPP vesting schedules against real-time market data and tax implications.</p>
-        <div class="stack">javascript, react, chart.js</div>
+        <div class="stack">verilog, vivado, fpga, xilinx</div>
       </article>
 
-      <article class="project" data-tags="photo">
+      <!-- ============================================================
+           PROJECT: Space Invaders
+           Media type: embed (live interactive demo)
+           [SWAP] Replace iframe src with actual hosted project URL
+           ============================================================ -->
+      <article class="project" data-tags="game" data-media="embed">
         <div class="proj-header">
-          <span class="mono-cat">Photography</span>
+          <span class="mono-cat">Game Design</span>
+          <span class="mono-tag">2026.02</span>
+        </div>
+        <h2>Space Invaders</h2>
+        <!-- [SWAP] Replace div.media-placeholder with:
+             <iframe src="YOUR_PROJECT_URL" title="Space Invaders" allowfullscreen></iframe>
+             Add loading="lazy" once URL is live -->
+        <div class="media-container type-embed">
+          <div class="media-placeholder">[ LIVE_DEMO // EMBED_PENDING ]</div>
+        </div>
+        <p>A faithful recreation of the arcade classic built in vanilla HTML, CSS, and JavaScript. No canvas libraries — pure DOM manipulation and requestAnimationFrame.</p>
+        <div class="stack">html, css, javascript</div>
+      </article>
+
+      <!-- ============================================================
+           PROJECT: UX Case Study
+           Media type: gallery (UX screens, wireframes, mockups)
+           [SWAP] Replace gallery-cell divs with <img> tags
+                  src="path/to/image.jpg" alt="descriptive alt text"
+           ============================================================ -->
+      <article class="project" data-tags="web" data-media="gallery">
+        <div class="proj-header">
+          <span class="mono-cat">Web & UX</span>
           <span class="mono-tag">2025.12</span>
         </div>
-        <h2>Cascade Winter Series</h2>
-        <p>High-contrast, raw alpine photography capturing historic, rustic resort atmospheres in the Washington backcountry.</p>
-        <div class="stack">sony a6400, lightroom</div>
+        <h2>UX Case Study</h2>
+        <!-- [SWAP] Replace each gallery-cell with an <img> tag.
+             Recommended: 4 images for 2x2 grid, or 2 for single row.
+             Add/remove .gallery-cell elements as needed. -->
+        <div class="media-container type-gallery">
+          <div class="gallery-cell">SCR_01</div>
+          <div class="gallery-cell">SCR_02</div>
+          <div class="gallery-cell">SCR_03</div>
+          <div class="gallery-cell">SCR_04</div>
+        </div>
+        <p>End-to-end UX process documentation: research, wireframing, prototyping, and usability testing for a data-heavy web application.</p>
+        <div class="stack">figma, user research, prototyping</div>
       </article>
 
-      <article class="project" data-tags="3d">
+      <!-- ============================================================
+           PROJECT: Shardblade Concept Render
+           Media type: image (single hero render)
+           [SWAP] Replace div.media-placeholder with:
+                  <img src="path/to/render.jpg" alt="Shardblade concept render" />
+           ============================================================ -->
+      <article class="project" data-tags="3d" data-media="image">
         <div class="proj-header">
-          <span class="mono-cat">3D Visual</span>
-          <span class="mono-tag">2025.10</span>
+          <span class="mono-cat">3D & Visual</span>
+          <span class="mono-tag">2025.11</span>
         </div>
         <h2>Shardblade Concept Render</h2>
-        <p>High-fidelity 3D modeling of epic fantasy weaponry, focusing on complex crystalline material shaders and subsurface scattering.</p>
-        <div class="stack">blender, octane render</div>
-      </article>
-
-      <article class="project" data-tags="audio">
-        <div class="proj-header">
-          <span class="mono-cat">Audio & DSP</span>
-          <span class="mono-tag">2025.08</span>
+        <!-- [SWAP] Replace div with: <img src="YOUR_IMAGE" alt="Shardblade concept render" /> -->
+        <div class="media-container type-image">
+          <div class="media-placeholder">[ RENDER // IMAGE_PENDING ]</div>
         </div>
-        <h2>Broadcast Audio Chain</h2>
-        <p>A custom hardware-to-software routing setup optimizing a Shure MV7 with VST plugins for ultra-low latency streaming.</p>
-        <div class="stack">c++, virtual audio cable, dsp</div>
+        <p>High-fidelity 3D modeling of epic fantasy weaponry, focusing on complex crystalline material shaders and subsurface scattering.</p>
+        <div class="stack">blender, octane render, substance painter</div>
       </article>
 
-      <article class="project" data-tags="photo">
+      <!-- ============================================================
+           PROJECT: Cascade Winter Series
+           Media type: gallery (photo series)
+           [SWAP] Replace gallery-cell divs with <img> tags
+           ============================================================ -->
+      <article class="project" data-tags="photo" data-media="gallery">
         <div class="proj-header">
           <span class="mono-cat">Photography</span>
-          <span class="mono-tag">2025.06</span>
+          <span class="mono-tag">2025.10</span>
         </div>
-        <h2>Industrial Textures</h2>
-        <p>A macro-photography study exploring machinery oxidation and brutalist architecture around the Northgate area.</p>
-        <div class="stack">sony a6400, 90mm macro</div>
+        <h2>Cascade Winter Series</h2>
+        <!-- [SWAP] Replace each gallery-cell with an <img> tag.
+             Recommended: 4 images minimum for a photo series grid. -->
+        <div class="media-container type-gallery">
+          <div class="gallery-cell">IMG_01</div>
+          <div class="gallery-cell">IMG_02</div>
+          <div class="gallery-cell">IMG_03</div>
+          <div class="gallery-cell">IMG_04</div>
+        </div>
+        <p>High-contrast, raw alpine photography capturing historic resort atmospheres and backcountry conditions in the Washington Cascades.</p>
+        <div class="stack">sony a6400, lightroom, capture one</div>
       </article>
 
-      <article class="project" data-tags="eng">
+      <!-- ============================================================
+           PROJECT: Podcast / Broadcast Audio
+           Media type: audio (player or embedded episode)
+           [SWAP] Replace div.media-placeholder with an <audio> element
+                  or embedded podcast player iframe
+           ============================================================ -->
+      <article class="project" data-tags="audio" data-media="audio">
+        <div class="proj-header">
+          <span class="mono-cat">Audio & DSP</span>
+          <span class="mono-tag">2025.09</span>
+        </div>
+        <h2>Broadcast Audio Chain</h2>
+        <!-- [SWAP] Replace div with one of:
+             <audio controls src="path/to/episode.mp3"></audio>
+             or an embedded podcast iframe (Spotify, Anchor, etc.) -->
+        <div class="media-container type-audio">
+          <div class="media-placeholder">[ AUDIO_PLAYER // EMBED_PENDING ]</div>
+        </div>
+        <p>A custom hardware-to-software routing setup optimizing a Shure MV7 with VST plugins for ultra-low latency streaming and podcast production.</p>
+        <div class="stack">c++, virtual audio cable, reaper, dsp</div>
+      </article>
+
+      <!-- ============================================================
+           PROJECT: Short Documentary / Video Project
+           Media type: video (YouTube or Vimeo embed)
+           [SWAP] Replace div.media-placeholder with YouTube iframe
+           ============================================================ -->
+      <article class="project" data-tags="video" data-media="video">
+        <div class="proj-header">
+          <span class="mono-cat">Video & Film</span>
+          <span class="mono-tag">2025.07</span>
+        </div>
+        <h2>Short Documentary</h2>
+        <!-- [SWAP] Replace div with YouTube embed:
+             <iframe src="https://www.youtube.com/embed/VIDEO_ID"
+               title="Short Documentary"
+               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+               allowfullscreen>
+             </iframe> -->
+        <div class="media-container type-video">
+          <div class="media-placeholder">[ VIDEO // EMBED_PENDING ]</div>
+        </div>
+        <p>A short-form documentary exploring industrial heritage and urban transformation in the Pacific Northwest. Shot and edited independently.</p>
+        <div class="stack">premiere pro, after effects, sony a6400</div>
+      </article>
+
+      <!-- ============================================================
+           PROJECT: Unity Environment Concept
+           Media type: embed (WebGL build) or image fallback
+           [SWAP] Replace div.media-placeholder with WebGL iframe
+                  or a hero screenshot if WebGL build isn't hosted
+           ============================================================ -->
+      <article class="project" data-tags="game" data-media="embed">
+        <div class="proj-header">
+          <span class="mono-cat">Game Design</span>
+          <span class="mono-tag">2025.05</span>
+        </div>
+        <h2>Unity Environment Concept</h2>
+        <!-- [SWAP] Option A — WebGL build:
+             <iframe src="YOUR_WEBGL_BUILD_URL" title="Unity Environment" allowfullscreen></iframe>
+             Option B — Screenshot gallery if WebGL isn't hosted:
+             Change data-media="gallery" and use gallery structure above -->
+        <div class="media-container type-embed">
+          <div class="media-placeholder">[ WEBGL_BUILD // EMBED_PENDING ]</div>
+        </div>
+        <p>A modular environment concept built in Unity using a custom lighting pipeline and original prop assets modeled in Blender.</p>
+        <div class="stack">unity, blender, hlsl, universal render pipeline</div>
+      </article>
+
+      <!-- ============================================================
+           PROJECT: Automated Network Auditor
+           Media type: technical (spec block, no image container)
+           [SWAP] Update spec-row values with real project data
+           ============================================================ -->
+      <article class="project" data-tags="eng" data-media="technical">
         <div class="proj-header">
           <span class="mono-cat">Engineering</span>
           <span class="mono-tag">2025.02</span>
         </div>
         <h2>Automated Network Auditor</h2>
-        <p>A local utility that recursively scans network folders and SharePoint to clean up naming formats and generate integrity reports.</p>
-        <div class="stack">node.js, sharepoint api, python</div>
+        <p>A local utility that recursively scans network folders and SharePoint to clean up naming conventions and generate integrity reports.</p>
+        <!-- [SWAP] Replace spec values with real project specifications -->
+        <div class="tech-specs">
+          <div class="spec-row">
+            <span class="spec-label">RUNTIME</span>
+            <span class="spec-value">Node.js 20 LTS</span>
+          </div>
+          <div class="spec-row">
+            <span class="spec-label">INTEGRATION</span>
+            <span class="spec-value">SharePoint REST API</span>
+          </div>
+          <div class="spec-row">
+            <span class="spec-label">OUTPUT</span>
+            <span class="spec-value">JSON + CSV Reports</span>
+          </div>
+          <div class="spec-row">
+            <span class="spec-label">STATUS</span>
+            <span class="spec-value">Deployed Internally</span>
+          </div>
+        </div>
+        <div class="stack">node.js, python, sharepoint api, regex</div>
       </article>
 
     </main>

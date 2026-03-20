@@ -7,23 +7,20 @@ document.addEventListener('DOMContentLoaded', () => {
     btn.addEventListener('click', () => {
       const filter = btn.dataset.filter;
 
-      // Update active state
       buttons.forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
 
-      // Filter projects
       projects.forEach(proj => {
         const tags = proj.dataset.tags.split(' ');
         if (filter === 'all' || tags.includes(filter)) {
           proj.classList.remove('filtered-out');
-          // Re-observe to trigger animations for newly shown items
-          observer.observe(proj); 
+          observer.observe(proj);
         } else {
           proj.classList.add('filtered-out');
         }
       });
 
-      // Mobile: Scroll to top of timeline on filter change
+      // Mobile: scroll to top of timeline on filter change
       if (window.innerWidth < 1024) {
         window.scrollTo({
           top: document.querySelector('.timeline').offsetTop - 120,
@@ -37,7 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const observerOptions = {
     root: null,
     rootMargin: '0px 0px -10% 0px',
-    threshold: 0.05 
+    threshold: 0.05
   };
 
   const observer = new IntersectionObserver((entries) => {
@@ -51,22 +48,26 @@ document.addEventListener('DOMContentLoaded', () => {
   projects.forEach(p => observer.observe(p));
 
   // 3. Dynamic System Header
+  // Status is time-conditional: active during business hours, standby otherwise
+  function getStatus() {
+    const h = new Date().getHours();
+    return (h >= 8 && h < 18) ? 'STATUS_ACTIVE' : 'STATUS_STANDBY';
+  }
+
   function updateSystemStatus() {
     const statusText = document.querySelector('.status-text');
     if (!statusText) return;
 
     const now = new Date();
-    const timeStr = now.toLocaleTimeString('en-US', { 
-      hour12: false, 
-      hour: '2-digit', 
-      minute: '2-digit' 
+    const timeStr = now.toLocaleTimeString('en-US', {
+      hour12: false,
+      hour: '2-digit',
+      minute: '2-digit'
     });
-    
-    // Updates the display with a terminal-style status line
-    statusText.innerHTML = `SEATTLE, WA // SYS_T_MIN_${timeStr} // STATUS_OPTIMAL`;
+
+    statusText.innerHTML = `SEATTLE, WA // SYS_T_MIN_${timeStr} // ${getStatus()}`;
   }
 
-  // Initial call and set interval for every 10 seconds
   updateSystemStatus();
   setInterval(updateSystemStatus, 10000);
 });

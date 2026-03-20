@@ -7,6 +7,7 @@
   --header: 'Space Grotesk', sans-serif;
 }
 
+/* Inlined grain — no external dependency */
 body::before {
   content: "";
   position: fixed;
@@ -14,12 +15,11 @@ body::before {
   left: 0;
   width: 100vw;
   height: 100vh;
-  opacity: 0.03; /* Keep it extremely subtle */
+  opacity: 0.03;
   pointer-events: none;
   z-index: 9999;
-  background-image: url("https://www.transparenttextures.com/patterns/felt.png"); /* Subtle paper grain */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n' x='0' y='0'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
 }
-
 
 body {
   margin: 0;
@@ -29,7 +29,10 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* System Header & Pulse */
+/* ============================================================
+   SYSTEM HEADER
+   ============================================================ */
+
 .system-header {
   position: fixed;
   top: 0;
@@ -43,7 +46,7 @@ body {
   font-size: 0.75rem;
   color: var(--fog);
   z-index: 100;
-  mix-blend-mode: multiply; 
+  /* mix-blend-mode removed — causes legibility issues as content scrolls under */
 }
 
 .status-box {
@@ -55,7 +58,7 @@ body {
   display: inline-block;
   width: 6px;
   height: 6px;
-  background: #5b8266; 
+  background: #5b8266;
   border-radius: 50%;
   margin-right: 8px;
   vertical-align: middle;
@@ -68,7 +71,10 @@ body {
   50% { opacity: 1; transform: translateY(-1px) scale(1.1); }
 }
 
-/* Layout */
+/* ============================================================
+   LAYOUT
+   ============================================================ */
+
 .grid-container {
   display: grid;
   grid-template-columns: 250px 1fr;
@@ -78,7 +84,10 @@ body {
   padding: 0 4rem;
 }
 
-/* Centered Sidebar Navigation */
+/* ============================================================
+   SIDEBAR NAVIGATION
+   ============================================================ */
+
 .sidebar {
   position: sticky;
   top: 0;
@@ -120,32 +129,15 @@ body {
   text-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
 }
 
-/* Timeline & Projects */
+/* ============================================================
+   TIMELINE & PROJECT CARDS
+   ============================================================ */
+
 .timeline {
   position: relative;
   padding: 15vh 0;
 }
 
-
-/* Vertical Signal Trace */
-/*
-.timeline::before {
-  content: '';
-  position: absolute;
-  left: -4rem;
-  top: 0;
-  width: 1px;
-  height: 100%;
-  background: linear-gradient(
-    to bottom,
-    transparent,
-    var(--fog) 10%,
-    var(--fog) 90%,
-    transparent
-  );
-  opacity: 0.2;
-}
-*/
 .project {
   position: relative;
   padding: 4rem 0;
@@ -156,27 +148,6 @@ body {
   border-bottom: 1px solid rgba(0,0,0,0.04);
 }
 
-/* Signal Connection Points */
-/*
-.project::before {
-  content: '';
-  position: absolute;
-  left: -4.25rem;
-  top: 4.5rem;
-  width: 8px;
-  height: 8px;
-  background: var(--paper);
-  border: 1px solid var(--fog);
-  border-radius: 50%;
-  z-index: 2;
-  transition: all 0.5s ease;
-}
-*/
-.project.is-visible::before {
-  border-color: var(--charcoal);
-  background: var(--charcoal);
-}
-
 .project:last-child {
   border-bottom: none;
 }
@@ -184,6 +155,12 @@ body {
 .project.is-visible {
   opacity: 1;
   transform: translateY(0);
+}
+
+/* Retained for when signal trace is re-enabled */
+.project.is-visible::before {
+  border-color: var(--charcoal);
+  background: var(--charcoal);
 }
 
 .proj-header {
@@ -201,7 +178,7 @@ body {
   font-family: var(--header);
   font-size: 2.5rem;
   font-weight: 400;
-  margin: 0 0 1rem 0;
+  margin: 0 0 1.5rem 0;
   letter-spacing: -0.03em;
   color: var(--charcoal);
 }
@@ -212,6 +189,7 @@ body {
   color: var(--charcoal);
   max-width: 650px;
   font-weight: 300;
+  margin: 1.5rem 0 0 0;
 }
 
 .stack {
@@ -226,46 +204,174 @@ body {
   display: none;
 }
 
-/* Mobile Responsiveness */
-/* Mobile Responsiveness Refined */
+/* ============================================================
+   MEDIA CONTAINERS
+   Base: print-insert aesthetic — bordered, no shadows
+   Each type shares the base and adds its own dimensions/behavior
+   ============================================================ */
+
+.media-container {
+  border: 1px solid rgba(0,0,0,0.1);
+  overflow: hidden;
+  /* No margin-top — h2 margin-bottom handles spacing above */
+}
+
+/* Single-frame types share 16:9 ratio */
+.media-container.type-image,
+.media-container.type-video,
+.media-container.type-embed {
+  aspect-ratio: 16 / 9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0.02);
+}
+
+/* Audio is wider than tall — suggests a player/waveform shape */
+.media-container.type-audio {
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0.02);
+}
+
+/* Gallery: 2-column grid, 1px gap rendered as border color */
+.media-container.type-gallery {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  background: rgba(0,0,0,0.1); /* gap color — cells sit on top */
+}
+
+.gallery-cell {
+  aspect-ratio: 4 / 3;
+  background: var(--paper);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  color: var(--fog);
+  letter-spacing: 0.08em;
+  /* [SWAP] Remove display/align/justify when replacing with <img>
+     — the img styles below take over */
+}
+
+/* Applied to real images inside gallery cells once placeholders are swapped */
+.gallery-cell img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  filter: grayscale(15%) contrast(1.05);
+}
+
+/* Applied to real images in type-image containers */
+.media-container.type-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  filter: grayscale(15%) contrast(1.05);
+}
+
+/* Applied to iframes in type-video and type-embed containers */
+.media-container.type-video iframe,
+.media-container.type-embed iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+  display: block;
+}
+
+/* Applied to <audio> element when placeholder is swapped */
+.media-container.type-audio audio {
+  width: 100%;
+  padding: 0 1.5rem;
+  box-sizing: border-box;
+}
+
+/* Placeholder label — shown until real media is swapped in */
+.media-placeholder {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  color: var(--fog);
+  letter-spacing: 0.12em;
+  opacity: 0.6;
+}
+
+/* ============================================================
+   TECH SPECS BLOCK
+   Used by technical projects instead of a media container
+   Renders as a lab spec-sheet data table
+   ============================================================ */
+
+.tech-specs {
+  margin-top: 1.5rem;
+  padding: 1.25rem 1.5rem;
+  border: 1px solid rgba(0,0,0,0.08);
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  line-height: 2;
+}
+
+.spec-row {
+  display: flex;
+  gap: 2rem;
+}
+
+.spec-label {
+  color: var(--fog);
+  min-width: 140px; /* Fixed width keeps values left-aligned in a clean column */
+  flex-shrink: 0;
+}
+
+.spec-value {
+  color: var(--charcoal);
+}
+
+/* ============================================================
+   MOBILE RESPONSIVENESS
+   ============================================================ */
+
 @media (max-width: 1024px) {
-  .system-header { 
-    padding: 1.5rem 1.5rem; 
+  .system-header {
+    padding: 1.5rem 1.5rem;
     box-sizing: border-box;
-    background: var(--paper); /* Ensures brand remains legible over scrolling text */
+    background: var(--paper);
   }
-  
-  .grid-container { 
-    grid-template-columns: 1fr; 
-    padding: 0 1.5rem; 
-    gap: 1rem; /* Tighter gap for mobile "dossier" look */
+
+  .grid-container {
+    grid-template-columns: 1fr;
+    padding: 0 1.5rem;
+    gap: 1rem;
     box-sizing: border-box;
   }
-  
+
   .sidebar {
     position: sticky;
-    top: 3.5rem; /* Sits right under the brand header */
+    top: 3.5rem;
     height: auto;
     padding: 1rem 0;
     margin-bottom: 0;
     background: var(--paper);
-    border-bottom: 1px solid rgba(0,0,0,0.05); /* Technical separator line */
+    border-bottom: 1px solid rgba(0,0,0,0.05);
     z-index: 90;
   }
-  
+
   .filter-nav {
     flex-direction: row;
     gap: 2rem;
     padding: 0 0.5rem;
     overflow-x: auto;
     scrollbar-width: none;
-    /* This creates a subtle fade so users know they can scroll right */
     mask-image: linear-gradient(to right, black 85%, transparent 100%);
     -webkit-mask-image: linear-gradient(to right, black 85%, transparent 100%);
   }
-  
-  .filter-nav::-webkit-scrollbar { 
-    display: none; 
+
+  .filter-nav::-webkit-scrollbar {
+    display: none;
   }
 
   .filter-nav button {
@@ -279,26 +385,37 @@ body {
   }
 
   .filter-nav button.active {
-    transform: none; /* No desktop-style shifting on mobile */
+    transform: none;
     color: var(--accent);
-    border-bottom: 1px solid var(--accent); /* Minimalist active indicator */
+    border-bottom: 1px solid var(--accent);
   }
 
-  .timeline { 
-    padding: 2vh 0; 
-  }
-
-  .project h2 { 
-    font-size: 1.8rem; /* Adjusted for mobile readability */
-  }
-}
-
-  /* Hide the signal trace on mobile to save horizontal space */
-  .timeline::before, .project::before {
+  /* Hide signal trace on mobile */
+  .timeline::before,
+  .project::before {
     display: none;
   }
-  
-  .timeline { padding: 2vh 0; }
-  .project { opacity: 0.35; }
-  .project h2 { font-size: 2rem; }
+
+  .timeline {
+    padding: 2vh 0;
+  }
+
+  /* Consistent with desktop — 0.1 until tested */
+  .project {
+    opacity: 0.1;
+  }
+
+  .project h2 {
+    font-size: 2rem;
+  }
+
+  /* Gallery collapses to single column on narrow screens */
+  .media-container.type-gallery {
+    grid-template-columns: 1fr;
+  }
+
+  /* Spec label shrinks to fit mobile width */
+  .spec-label {
+    min-width: 100px;
+  }
 }
