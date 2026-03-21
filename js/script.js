@@ -20,7 +20,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       });
 
-      // Mobile: scroll to top of timeline on filter change
       if (window.innerWidth < 1024) {
         window.scrollTo({
           top: document.querySelector('.timeline').offsetTop - 120,
@@ -41,6 +40,8 @@ document.addEventListener('DOMContentLoaded', () => {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
         entry.target.classList.add('is-visible');
+        // Stop watching once revealed — element is done animating
+        observer.unobserve(entry.target);
       }
     });
   }, observerOptions);
@@ -48,9 +49,17 @@ document.addEventListener('DOMContentLoaded', () => {
   projects.forEach(p => observer.observe(p));
 
   // 3. Dynamic System Header
-  // Status is time-conditional: active during business hours, standby otherwise
+  // Force Seattle time regardless of viewer's locale
+  function getSeattleHour() {
+    return parseInt(new Date().toLocaleString('en-US', {
+      timeZone: 'America/Los_Angeles',
+      hour: '2-digit',
+      hour12: false
+    }));
+  }
+
   function getStatus() {
-    const h = new Date().getHours();
+    const h = getSeattleHour();
     return (h >= 8 && h < 18) ? 'STATUS_ACTIVE' : 'STATUS_STANDBY';
   }
 
@@ -58,8 +67,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const statusText = document.querySelector('.status-text');
     if (!statusText) return;
 
-    const now = new Date();
-    const timeStr = now.toLocaleTimeString('en-US', {
+    const timeStr = new Date().toLocaleTimeString('en-US', {
+      timeZone: 'America/Los_Angeles', // Always display Seattle time
       hour12: false,
       hour: '2-digit',
       minute: '2-digit'
