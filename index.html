@@ -29,6 +29,11 @@
 
   <header class="system-header">
     <div class="brand">RILEY_TAYLOR</div>
+    <!-- Mobile-only live indicator — shown by JS when live, hidden on desktop via CSS -->
+    <div class="header-live" id="headerLive">
+      <span class="header-live-pulse"></span>
+      <a href="https://www.twitch.tv/rawwwley" target="_blank" rel="noopener">LIVE</a>
+    </div>
     <div class="status-box">
       <span class="pulse"></span>
       <span class="status-text">SYSTEM_INITIALIZING...</span>
@@ -47,6 +52,13 @@
         <button data-filter="game">Game Design</button>
         <button data-filter="video">Video & Film</button>
       </nav>
+
+      <!-- Live badge — hidden by default, shown by JS when Twitch stream is active -->
+      <div class="live-badge" id="liveBadge">
+        <span class="live-pulse"></span>
+        <span class="live-label">LIVE_NOW</span>
+        <div class="live-links" id="liveLinks"></div>
+      </div>
     </aside>
 
     <main class="timeline">
@@ -175,10 +187,10 @@
       </article>
 
       <!-- ============================================================
-           PROJECT: Podcast / Broadcast Audio
-           Media type: audio (player or embedded episode)
-           [SWAP] Replace div.media-placeholder with an <audio> element
-                  or embedded podcast player iframe
+           PROJECT: Broadcast Audio Chain
+           Media type: audio (self-hosted custom player)
+           [SWAP] data-src with real audio file path, e.g. "audio/demo.mp3"
+                  data-title with track label (mono uppercase recommended)
            ============================================================ -->
       <article class="project" data-tags="audio" data-media="audio">
         <div class="proj-header">
@@ -186,14 +198,67 @@
           <span class="mono-tag">2025.09</span>
         </div>
         <h2>Broadcast Audio Chain</h2>
-        <!-- [SWAP] Replace div with one of:
-             <audio controls src="path/to/episode.mp3"></audio>
-             or an embedded podcast iframe (Spotify, Anchor, etc.) -->
-        <div class="media-container type-audio">
-          <div class="media-placeholder">[ AUDIO_PLAYER // EMBED_PENDING ]</div>
+        <div class="media-container type-audio" data-src="audio/alec_koff-pop-punk-487450.mp3" data-title="BROADCAST_DEMO_01">
+          <!-- Hidden native audio element — custom UI drives it via JS -->
+          <audio preload="metadata"></audio>
+          <div class="audio-player">
+            <!-- Oscilloscope canvas — idle: flat fog line, playing: live green waveform -->
+            <canvas class="audio-visualizer" aria-hidden="true"></canvas>
+            <!-- Controls row: play btn | title + scrub | time -->
+            <div class="audio-controls">
+              <button class="audio-play-btn" aria-label="Play" disabled>
+                <span class="audio-play-icon">▶</span>
+              </button>
+              <div class="audio-middle">
+                <span class="audio-title">BROADCAST_DEMO_01</span>
+                <div class="audio-progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+                  <div class="audio-fill"></div>
+                </div>
+              </div>
+              <span class="audio-time">--:-- / --:--</span>
+            </div>
+          </div>
         </div>
         <p>A custom hardware-to-software routing setup optimizing a Shure MV7 with VST plugins for ultra-low latency streaming and podcast production.</p>
         <div class="stack">c++, virtual audio cable, reaper, dsp</div>
+      </article>
+
+      <!-- ============================================================
+           PROJECT: Podcast — long-form embed (Spotify)
+           Media type: podcast (fixed-height iframe, 152px Spotify compact)
+           [SWAP] Replace div.media-placeholder with:
+           <iframe src="https://open.spotify.com/embed/episode/EPISODE_ID"
+             width="100%" height="152" frameborder="0"
+             allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+             loading="lazy">
+           </iframe>
+           ============================================================ -->
+      <article class="project" data-tags="audio" data-media="podcast">
+        <div class="proj-header">
+          <span class="mono-cat">Audio & DSP</span>
+          <span class="mono-tag">2025.08</span>
+        </div>
+        <h2>Podcast Episode</h2>
+        <!-- Platform tab switcher — active tab drives the iframe src below.
+             [SWAP] Fill in data-embed URLs for Apple and SoundCloud when live.
+             Remove 'disabled' attribute from those buttons at the same time. -->
+        <div class="platform-tabs">
+          <button class="platform-tab active"
+            data-embed="https://open.spotify.com/embed/episode/5XzSGHXAieVeXkPTLYZncV?theme=0">
+            Spotify
+          </button>
+          <button class="platform-tab" data-embed="" disabled>Apple</button>
+          <button class="platform-tab" data-embed="" disabled>SoundCloud</button>
+        </div>
+        <div class="media-container type-podcast">
+          <iframe src="https://open.spotify.com/embed/episode/5XzSGHXAieVeXkPTLYZncV?theme=0"
+            width="100%" height="152" frameborder="0"
+            allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+            loading="lazy">
+          </iframe>
+        </div>
+        <p>Long-form audio project placeholder. Replace with episode description once live.</p>
+        <div class="stack">spotify, reaper, shure mv7</div>
       </article>
 
       <!-- ============================================================
@@ -214,7 +279,12 @@
                allowfullscreen>
              </iframe> -->
         <div class="media-container type-video">
-          <div class="media-placeholder">[ VIDEO // EMBED_PENDING ]</div>
+          <iframe src="https://www.youtube.com/embed/5moaiVoHLHY?rel=0&color=white&modestbranding=1"
+            title="Short Documentary"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowfullscreen
+            loading="lazy">
+          </iframe>
         </div>
         <p>A short-form documentary exploring industrial heritage and urban transformation in the Pacific Northwest. Shot and edited independently.</p>
         <div class="stack">premiere pro, after effects, sony a6400</div>
