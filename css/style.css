@@ -5,22 +5,38 @@
   --accent: #1d1d1f;
   --mono: 'JetBrains Mono', monospace;
   --header: 'Space Grotesk', sans-serif;
+  /* accent green — pulse dot, oscilloscope line, audio fill, code comments.
+     Centralised so one change updates the entire palette. */
+  --green: #5b8266;
+  /* live red — Twitch/stream indicators only */
+  --red: #c0392b;
+  /* code block backgrounds — tabs are slightly darker than the content area */
+  --code-bg: #1a1a1c;
+  --code-tabs-bg: #111113;
 }
 
-/* Clamp horizontal overflow at the root */
+/* Clamp horizontal overflow at the root. scrollbar-width: none hides the
+   page scrollbar on Firefox; the webkit rule below covers Chrome/Safari.
+   Scrolling still works — only the visual track is hidden. */
 html {
   overflow-x: hidden;
+  scrollbar-width: none;
 }
 
-/* Inlined grain — inset: 0 replaces width/height 100vw/vh which
-   causes rightward bleed by including scrollbar width in layout */
+html::-webkit-scrollbar {
+  display: none;
+}
+
+/* Inlined grain — inset: 0 replaces 100vw/vh which bleeds into scrollbar width.
+   z-index: 500 sits above all page content (header: 100, sidebar: 90) while
+   leaving headroom for any future modals or overlays to beat it. */
 body::before {
   content: "";
   position: fixed;
   inset: 0;
   opacity: 0.03;
   pointer-events: none;
-  z-index: 9999;
+  z-index: 500;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n' x='0' y='0'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
 }
 
@@ -49,6 +65,8 @@ body {
   font-size: 0.75rem;
   color: var(--fog);
   z-index: 100;
+  /* Background required — content scrolls behind this element */
+  background: var(--paper);
 }
 
 .status-box {
@@ -70,7 +88,7 @@ body {
   display: inline-block;
   width: 6px;
   height: 6px;
-  background: #5b8266;
+  background: var(--green);
   border-radius: 50%;
   margin-right: 8px;
   /* flex-shrink: 0 keeps the dot visible when status text truncates */
@@ -82,7 +100,7 @@ body {
 
 @keyframes paper-breathe {
   0%, 100% { opacity: 0.3; transform: translateY(-1px) scale(0.9); }
-  50% { opacity: 1; transform: translateY(-1px) scale(1.1); }
+  50%       { opacity: 1;   transform: translateY(-1px) scale(1.1); }
 }
 
 /* ============================================================
@@ -127,7 +145,10 @@ body {
   font-weight: 400;
   font-family: var(--header);
   cursor: pointer;
-  transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  /* explicit properties instead of 'all' — avoids checking every animatable
+     property on every frame, which causes unnecessary layout recalculation */
+  transition: color 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
   transform-origin: left center;
 }
 
@@ -146,11 +167,10 @@ body {
 /* ============================================================
    HEADER LIVE INDICATOR (mobile/tablet only)
    Hidden on desktop — sidebar badge handles it there.
-   Sits between brand and status in the header flex row.
    ============================================================ */
 
 .header-live {
-  display: none; /* hidden on desktop — sidebar badge is used instead */
+  display: none;
   align-items: center;
   gap: 0.5rem;
   font-family: var(--mono);
@@ -169,7 +189,7 @@ body {
 .header-live-pulse {
   width: 6px;
   height: 6px;
-  background: #c0392b;
+  background: var(--red);
   border-radius: 50%;
   flex-shrink: 0;
   animation: live-throb 1.5s ease-in-out infinite;
@@ -185,11 +205,11 @@ body {
 .header-live a:hover {
   border-bottom-color: var(--charcoal);
 }
-  
+
 /* ============================================================
    SIDEBAR LIVE BADGE (desktop only)
    Hidden by default — JS adds .is-live when Twitch stream active.
-   Sits below the filter nav, slides in from slight offset.
+   Slides in from slight vertical offset when it appears.
    ============================================================ */
 
 .live-badge {
@@ -202,7 +222,6 @@ body {
   font-family: var(--mono);
   font-size: 0.7rem;
   letter-spacing: 0.08em;
-  /* Hidden and shifted down — JS transition reveals it */
   opacity: 0;
   transform: translateY(8px);
   pointer-events: none;
@@ -219,7 +238,7 @@ body {
   display: inline-block;
   width: 6px;
   height: 6px;
-  background: #c0392b; /* red — universal live signal */
+  background: var(--red);
   border-radius: 50%;
   flex-shrink: 0;
   animation: live-throb 1.5s ease-in-out infinite;
@@ -227,12 +246,10 @@ body {
 
 @keyframes live-throb {
   0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.5; transform: scale(0.85); }
+  50%       { opacity: 0.5; transform: scale(0.85); }
 }
 
-.live-label {
-  color: var(--charcoal);
-}
+.live-label { color: var(--charcoal); }
 
 .live-links {
   display: flex;
@@ -273,26 +290,23 @@ body {
   margin-bottom: 2rem;
   opacity: 0.1;
   transform: translateY(30px);
-  /* Two transitions on the same property need to be explicit —
-     'all' would conflict with the hover translateX we're adding */
+  /* explicit properties — avoids 'all' checking every animatable property */
   transition:
-    opacity 0.9s cubic-bezier(0.2, 0.8, 0.2, 1),
+    opacity  0.9s cubic-bezier(0.2, 0.8, 0.2, 1),
     transform 0.9s cubic-bezier(0.2, 0.8, 0.2, 1);
   border-bottom: 1px solid rgba(0,0,0,0.04);
 }
 
-.project:last-child {
-  border-bottom: none;
-}
+.project:last-child { border-bottom: none; }
 
 /* Left accent bar — starts collapsed, draws downward on hover.
-   Positioned flush to the left edge of the card's padding box. */
+   transform-origin: top means it animates downward, reading as "activating". */
 .project::before {
   content: '';
   position: absolute;
-  left: -1.5rem;   /* sits just outside the card's content area */
-  top: 4rem;       /* aligns with the top of the card's padding */
-  bottom: 4rem;    /* aligns with the bottom */
+  left: -1.5rem;
+  top: 4rem;
+  bottom: 4rem;
   width: 2px;
   background: var(--fog);
   transform: scaleY(0);
@@ -305,14 +319,13 @@ body {
   transform: translateY(0);
 }
 
-/* Nudge the card right and draw the accent bar on hover.
-   Only active once the card is visible — avoids triggering
-   during the entrance animation. */
+/* Nudge right + draw accent bar on hover — desktop only.
+   Both mobile breakpoints override this back to translateY(0). */
 .project.is-visible:hover {
   transform: translateX(4px);
   transition:
     transform 0.4s cubic-bezier(0.16, 1, 0.3, 1),
-    opacity 0.9s cubic-bezier(0.2, 0.8, 0.2, 1);
+    opacity   0.9s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 .project.is-visible:hover::before {
@@ -328,14 +341,21 @@ body {
   font-size: 0.8rem;
   margin-bottom: 1rem;
   color: var(--fog);
+  /* print-register rule — thin rule above category/date reads as a section marker */
+  border-top: 1px solid rgba(0,0,0,0.1);
+  padding-top: 1rem;
 }
 
 .project h2 {
   font-family: var(--header);
-  font-size: 2.5rem;
+  /* clamp replaces three explicit breakpoint overrides — fluid from
+     1.75rem at phone width up to 2.5rem at desktop, no hard jumps */
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
   font-weight: 400;
   margin: 0 0 1.5rem 0;
   letter-spacing: -0.03em;
+  /* 1.1 prevents double-spaced gap on multiline titles at large font sizes */
+  line-height: 1.1;
   color: var(--charcoal);
 }
 
@@ -343,7 +363,8 @@ body {
   font-size: 1.15rem;
   line-height: 1.7;
   color: var(--charcoal);
-  max-width: 650px;
+  /* ch units scale with font size — more accurate line-length control than px */
+  max-width: 65ch;
   font-weight: 300;
   margin: 1.5rem 0 0 0;
 }
@@ -356,33 +377,62 @@ body {
   text-transform: lowercase;
 }
 
-/* Filtered-out cards fade and sink rather than snapping to display:none.
-   JS removes them from layout (via .filtered-hidden) only after the
-   transition completes, so the animation has something to play against. */
+/* ============================================================
+   PROJECT LINKS (GitHub, live site, etc.)
+   Same mono register as .stack but with hover colour shift.
+   ============================================================ */
+
+.proj-links {
+  margin-top: 0.75rem;
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.proj-link {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  text-transform: lowercase;
+  letter-spacing: 0.04em;
+  color: var(--fog);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: color 0.2s ease, border-color 0.2s ease;
+}
+
+.proj-link:hover {
+  color: var(--charcoal);
+  border-bottom-color: var(--charcoal);
+}
+
+/* ============================================================
+   FILTER ANIMATION CLASSES
+   JS drives these — see script.js section 1 for timing notes.
+   ============================================================ */
+
+/* Step 1: fade + sink outgoing cards before removing from layout */
 .filtered-out {
   opacity: 0;
   transform: translateY(8px);
   pointer-events: none;
   transition:
-    opacity 0.24s ease,
+    opacity  0.24s ease,
     transform 0.24s ease;
 }
 
-/* Applied by JS after transition ends — removes from layout flow */
-.filtered-hidden {
-  display: none;
-}
+/* Step 2: remove from layout after the out-transition completes */
+.filtered-hidden { display: none; }
 
-/* Cards fading back in get a slightly longer ease so they don't
-   race past the outgoing cards — staggered reveal handles further ordering */
+/* Incoming cards get slightly longer ease so they don't race past
+   the outgoing ones — stagger handles further ordering */
 .filtered-in {
   transition:
-    opacity 0.32s ease,
+    opacity  0.32s ease,
     transform 0.32s ease;
 }
 
 /* ============================================================
-   MEDIA CONTAINERS
+   MEDIA CONTAINERS — base + type variants
    ============================================================ */
 
 .media-container {
@@ -401,8 +451,224 @@ body {
 }
 
 /* ============================================================
-   CUSTOM AUDIO PLAYER (self-hosted)
-   Column layout: oscilloscope canvas on top, controls row below
+   3D MODEL VIEWER
+   aspect-ratio container — model-viewer fills it.
+   CSS custom props control the loading progress bar colour.
+   Note: loaded from unpkg.com — fine for dev, consider a pinned
+   CDN URL before going public.
+   ============================================================ */
+
+.media-container.type-3d {
+  aspect-ratio: 16 / 9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0.02);
+}
+
+.media-container.type-3d model-viewer {
+  width: 100%;
+  height: 100%;
+  /* match accent green + paper bg for the loading bar */
+  --progress-bar-color: var(--green);
+  --progress-mask: var(--paper);
+}
+
+/* ============================================================
+   CODE BLOCK TABS (IDE-style tab bar)
+   Active tab's bottom border punched out via box-shadow removes
+   the seam between the tab and the code block below it.
+   ============================================================ */
+
+.code-tabs {
+  display: flex;
+  overflow-x: auto;
+  scrollbar-width: none;
+  background: var(--code-tabs-bg);
+  border: 1px solid rgba(255,255,255,0.06);
+  /* no bottom border — code block provides the visual bottom context */
+  border-bottom: none;
+}
+
+.code-tabs::-webkit-scrollbar { display: none; }
+
+.code-tab {
+  background: transparent;
+  border: none;
+  border-right: 1px solid rgba(255,255,255,0.06);
+  padding: 0.5rem 1rem;
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+  color: rgba(134, 134, 139, 0.7);
+  cursor: pointer;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+
+.code-tab:last-child { border-right: none; }
+
+.code-tab:hover {
+  color: rgba(248, 247, 245, 0.75);
+  background: rgba(255,255,255,0.03);
+}
+
+.code-tab.active {
+  background: var(--code-bg);
+  color: rgba(248, 247, 245, 0.9);
+  /* punch through bottom border — merges tab visually into code block */
+  box-shadow: 0 1px 0 var(--code-bg);
+}
+
+/* When .code-tabs immediately precedes .type-code, remove its top border —
+   the tab bar already provides the visual top edge */
+.code-tabs + .media-container.type-code {
+  border-top: none;
+}
+
+/* ============================================================
+   CODE BLOCK (Prism.js)
+   max-height + overflow-y keeps long snippets from blowing out
+   the card — users scroll within the block.
+   Grid stacking: all pres share the same cell so container height
+   is always driven by the tallest tab, not whichever is active.
+   Switching tabs never resizes the container.
+   ============================================================ */
+
+.media-container.type-code {
+  border: 1px solid rgba(255,255,255,0.06);
+  background: var(--code-bg);
+  padding: 0;
+  --code-font-size: 0.72rem;
+  /* cap height — scroll within the block for longer snippets */
+  max-height: 340px;
+  overflow-y: auto;
+  scrollbar-width: none;
+  /* all pre elements share the same grid cell */
+  display: grid;
+}
+
+.media-container.type-code::-webkit-scrollbar { display: none; }
+
+/* All pres on cell 1/1 — container height = tallest pre, always */
+.media-container.type-code pre {
+  grid-row: 1;
+  grid-column: 1;
+  /* min-width: 0 prevents grid child from overflowing on long lines */
+  min-width: 0;
+}
+
+/* Inactive pres: invisible but still in layout (preserves container height).
+   pointer-events + user-select: none so invisible text can't be selected. */
+.media-container.type-code pre.code-hidden {
+  visibility: hidden;
+  pointer-events: none;
+  user-select: none;
+}
+
+.media-container.type-code pre[class*="language-"] {
+  margin: 0;
+  padding: 1.5rem 1.75rem;
+  background: transparent;
+  font-family: var(--mono);
+  font-size: var(--code-font-size);
+  line-height: 1.75;
+  border-radius: 0;
+  box-shadow: none;
+  /* horizontal scroll preserves alignment — wrapping mid-line breaks tokens */
+  white-space: pre;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.media-container.type-code pre[class*="language-"]::-webkit-scrollbar { display: none; }
+
+.media-container.type-code code[class*="language-"] {
+  font-family: var(--mono);
+  color: rgba(248, 247, 245, 0.75);
+  background: transparent;
+  text-shadow: none;
+}
+
+/* Copy button — margin-left: auto pushes it to the right end of the tab bar.
+   Opacity 0 by default, fades in on tab bar hover or button focus.
+   Note: Clipboard API requires HTTPS or localhost — works on GitHub Pages. */
+.code-copy-btn {
+  margin-left: auto;
+  background: transparent;
+  border: none;
+  border-left: 1px solid rgba(255,255,255,0.06);
+  color: rgba(134, 134, 139, 0.5);
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.06em;
+  padding: 0.5rem 0.875rem;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s ease, color 0.15s ease;
+  white-space: nowrap;
+}
+
+.code-tabs:hover .code-copy-btn,
+.code-copy-btn:focus {
+  opacity: 1;
+}
+
+.code-copy-btn:hover { color: rgba(248, 247, 245, 0.85); }
+
+.code-copy-btn.is-copied {
+  color: var(--green);
+  opacity: 1;
+}
+
+/* Prism token overrides — two-tone palette.
+   Green = comments/annotations (ties to pulse dot + oscilloscope line).
+   Bright paper = keywords/structure. Dimmed paper = strings/data. */
+
+.media-container.type-code .token.comment,
+.media-container.type-code .token.prolog,
+.media-container.type-code .token.doctype,
+.media-container.type-code .token.cdata {
+  color: var(--green);
+  font-style: italic;
+}
+
+.media-container.type-code .token.keyword,
+.media-container.type-code .token.selector,
+.media-container.type-code .token.important,
+.media-container.type-code .token.atrule {
+  color: rgba(248, 247, 245, 0.95);
+  font-weight: 500;
+}
+
+.media-container.type-code .token.string,
+.media-container.type-code .token.attr-value,
+.media-container.type-code .token.char {
+  color: rgba(248, 247, 245, 0.55);
+}
+
+.media-container.type-code .token.number,
+.media-container.type-code .token.boolean,
+.media-container.type-code .token.constant {
+  color: rgba(248, 247, 245, 0.85);
+}
+
+.media-container.type-code .token.operator,
+.media-container.type-code .token.punctuation {
+  color: rgba(248, 247, 245, 0.4);
+}
+
+.media-container.type-code .token.function,
+.media-container.type-code .token.class-name {
+  color: rgba(248, 247, 245, 0.85);
+}
+
+/* ============================================================
+   CUSTOM AUDIO PLAYER (text-as-control)
+   Layout: oscilloscope canvas → full-bleed scrub bar → text row.
+   The text row IS the play/pause control — no button element.
+   Label scrambles between PLAY and PAUSE on every toggle.
+   Green colour = playing state, ties to oscilloscope and fill bar.
    ============================================================ */
 
 .media-container.type-audio {
@@ -418,105 +684,66 @@ body {
   flex-direction: column;
 }
 
-/* Oscilloscope canvas — full width, fixed height.
-   Idle: flat fog line. Playing: live green waveform.
-   JS sets canvas.width/height to match physical pixels for retina. */
+/* Oscilloscope canvas — idle: flat dashed fog line.
+   Playing: live green waveform driven by Web Audio analyser node.
+   JS sizes to physical pixels for crisp retina rendering. */
 .audio-visualizer {
   display: block;
   width: 100%;
   height: 48px;
   box-sizing: border-box;
   padding: 0 1.25rem;
-  margin-top: 1.5rem; /* matches card's internal rhythm — separates from h2 */
+  margin-top: 1.5rem;
 }
 
-
-/* Controls row — play btn | title + scrub bar | time */
-.audio-controls {
-  display: flex;
-  align-items: center;
-  gap: 1.25rem;
-  padding: 0.875rem 1.25rem;
-  height: 60px;
-  box-sizing: border-box;
-  border-top: 1px solid rgba(0,0,0,0.06);
-}
-
-/* Square play/pause button — bordered, minimal glyph */
-.audio-play-btn {
-  flex-shrink: 0;
-  width: 36px;
-  height: 36px;
-  border: 1px solid rgba(0,0,0,0.15);
-  background: transparent;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: border-color 0.2s ease, background 0.2s ease;
-  padding: 0;
-}
-
-.audio-play-btn:hover:not(:disabled) {
-  border-color: var(--charcoal);
-  background: rgba(0,0,0,0.04);
-}
-
-.audio-play-btn:disabled {
-  opacity: 0.35;
-  cursor: default;
-}
-
-.audio-play-icon {
-  font-family: var(--mono);
-  font-size: 0.65rem;
-  color: var(--charcoal);
-  transform: translateX(1px);
-  line-height: 1;
-}
-
-/* Green border when playing — ties to pulse dot and fill bar */
-.audio-play-btn.is-playing {
-  border-color: #5b8266;
-}
-
-/* Middle section — title + scrub bar stacked */
-.audio-middle {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.audio-title {
-  font-family: var(--mono);
-  font-size: 0.65rem;
-  color: var(--fog);
-  letter-spacing: 0.08em;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-/* Progress bar track */
+/* Full-bleed scrub bar — no horizontal padding so it reads as a ruler
+   spanning the full card width, visually distinct from the inset text row */
 .audio-progress {
   height: 2px;
   background: rgba(0,0,0,0.08);
   position: relative;
   cursor: pointer;
+  margin: 0;
 }
 
-/* Filled portion — green accent, matches visualizer active state */
 .audio-fill {
   height: 100%;
   width: 0%;
-  background: #5b8266;
+  background: var(--green);
   transition: width 0.1s linear;
   pointer-events: none;
 }
 
-/* Time display */
+/* Text row is the play/pause control — click anywhere to toggle.
+   Padding aligns with canvas horizontal padding for visual consistency. */
+.audio-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.875rem 1.25rem;
+  border-top: 1px solid rgba(0,0,0,0.06);
+  cursor: pointer;
+  /* user-select: none prevents text selection on rapid double-clicks */
+  user-select: none;
+}
+
+/* Track label — the interactive control.
+   Idle: charcoal. Playing: green, tied to oscilloscope and fill bar. */
+.audio-title {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  color: var(--charcoal);
+  transition: color 0.3s ease;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.audio-title.is-playing {
+  color: var(--green);
+}
+
 .audio-time {
   flex-shrink: 0;
   font-family: var(--mono);
@@ -524,12 +751,12 @@ body {
   color: var(--fog);
   letter-spacing: 0.04em;
   white-space: nowrap;
+  margin-left: 1.25rem;
 }
 
 /* ============================================================
    PLATFORM TABS (podcast embed switcher)
-   Sits above the podcast container. Disabled tabs are faded —
-   signals future availability without hiding them.
+   Disabled tabs are faded — signals future availability.
    ============================================================ */
 
 .platform-tabs {
@@ -552,23 +779,12 @@ body {
   transition: color 0.2s ease, border-color 0.2s ease;
 }
 
-.platform-tab:hover:not(:disabled) {
-  color: var(--charcoal);
-}
-
-.platform-tab.active {
-  color: var(--charcoal);
-  border-bottom-color: var(--charcoal);
-}
-
-.platform-tab:disabled {
-  opacity: 0.3;
-  cursor: default;
-}
+.platform-tab:hover:not(:disabled) { color: var(--charcoal); }
+.platform-tab.active { color: var(--charcoal); border-bottom-color: var(--charcoal); }
+.platform-tab:disabled { opacity: 0.3; cursor: default; }
 
 /* ============================================================
-   PODCAST EMBED CONTAINER (Spotify / long-form)
-   Fixed at Spotify compact height — no aspect ratio
+   PODCAST EMBED CONTAINER (Spotify compact — fixed 152px height)
    ============================================================ */
 
 .media-container.type-podcast {
@@ -589,6 +805,12 @@ body {
   border: none;
   display: block;
 }
+
+/* ============================================================
+   GALLERY
+   gap: 1px + background colour creates hairline grid lines.
+   ============================================================ */
+
 .media-container.type-gallery {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -632,8 +854,6 @@ body {
   display: block;
 }
 
-
-
 .media-placeholder {
   font-family: var(--mono);
   font-size: 0.7rem;
@@ -666,15 +886,13 @@ body {
   flex-shrink: 0;
 }
 
-.spec-value {
-  color: var(--charcoal);
-}
+.spec-value { color: var(--charcoal); }
 
 /* ============================================================
    BREAKPOINT: TABLET (768px–1024px)
-   Single column, but not phone-compressed.
-   Filter nav stays horizontal using the header font — not
-   degraded to mono uppercase, which reads as phone-only UI.
+   Single column. Nav goes horizontal — header font, not mono uppercase.
+   overflow: hidden on sidebar clips filter-nav at right edge.
+   padding-right on filter-nav gives breathing room before the clip.
    ============================================================ */
 
 @media (min-width: 768px) and (max-width: 1024px) {
@@ -699,6 +917,8 @@ body {
     background: var(--paper);
     border-bottom: 1px solid rgba(0,0,0,0.05);
     z-index: 90;
+    /* hard clip — content behind sidebar can't bleed through */
+    overflow: hidden;
   }
 
   .filter-nav {
@@ -706,17 +926,14 @@ body {
     gap: 2.5rem;
     overflow-x: auto;
     scrollbar-width: none;
-    /* Fade-out right edge signals scrollability without a scrollbar */
-    mask-image: linear-gradient(to right, black 80%, transparent 100%);
-    -webkit-mask-image: linear-gradient(to right, black 80%, transparent 100%);
+    /* padding-right gives breathing room before the hard clip */
+    padding-right: 3rem;
   }
 
-  .filter-nav::-webkit-scrollbar {
-    display: none;
-  }
+  .filter-nav::-webkit-scrollbar { display: none; }
 
   .filter-nav button {
-    /* Keep header font — this width doesn't need the compressed mono treatment */
+    /* keep header font — mono uppercase is the phone register, not tablet */
     font-family: var(--header);
     font-size: 0.9rem;
     font-weight: 400;
@@ -726,11 +943,7 @@ body {
     transform: none;
   }
 
-  .filter-nav button:hover {
-    color: var(--charcoal);
-    transform: none;
-  }
-
+  .filter-nav button:hover  { color: var(--charcoal); transform: none; }
   .filter-nav button.active {
     color: var(--accent);
     font-weight: 500;
@@ -739,45 +952,32 @@ body {
     text-shadow: none;
   }
 
-  .timeline {
-    padding: 4vh 0;
-  }
+  .timeline { padding: 4vh 0; }
 
-  .project {
-    padding: 3rem 0;
-  }
-
-  .project h2 {
-    font-size: 2.25rem;
-  }
+  .project { padding: 3rem 0; }
 
   .project p {
     font-size: 1.05rem;
     max-width: 100%;
   }
 
-  .spec-label {
-    min-width: 120px;
-  }
+  .spec-label { min-width: 120px; }
 
   .timeline::before,
-  .project::before {
-    display: none;
-  }
+  .project::before { display: none; }
 
-  /* Live badge moves to header on tablet — hide sidebar version */
-  .live-badge {
-    display: none;
-  }
+  /* hover slide is desktop-only — translateX has nowhere meaningful to go
+     when the nav is a top bar rather than a left sidebar */
+  .project.is-visible:hover { transform: translateY(0); }
 
-  .header-live {
-    display: flex;
-  }
+  .live-badge  { display: none; }
+  .header-live { display: flex; }
 }
+
 /* ============================================================
-    BREAKPOINT: PHONE (up to 767px)
-   Compressed. Mono uppercase nav signals a different context
-   from the desktop experience — intentional register shift.
+   BREAKPOINT: PHONE (up to 767px)
+   Compressed. Mono uppercase nav = intentional register shift
+   from the desktop/tablet experience.
    ============================================================ */
 
 @media (max-width: 767px) {
@@ -803,6 +1003,7 @@ body {
     background: var(--paper);
     border-bottom: 1px solid rgba(0,0,0,0.05);
     z-index: 90;
+    overflow: hidden;
   }
 
   .filter-nav {
@@ -810,13 +1011,10 @@ body {
     gap: 1.5rem;
     overflow-x: auto;
     scrollbar-width: none;
-    mask-image: linear-gradient(to right, black 80%, transparent 100%);
-    -webkit-mask-image: linear-gradient(to right, black 80%, transparent 100%);
+    padding-right: 2rem;
   }
 
-  .filter-nav::-webkit-scrollbar {
-    display: none;
-  }
+  .filter-nav::-webkit-scrollbar { display: none; }
 
   .filter-nav button {
     font-size: 0.7rem;
@@ -825,17 +1023,13 @@ body {
     letter-spacing: 0.06em;
     white-space: nowrap;
     color: var(--fog);
-    /* Increased from 0.5rem — minimum 44px touch target */
+    /* 0.75rem padding + min-height: 44px meets Apple/Google touch target spec */
     padding: 0.75rem 0;
     min-height: 44px;
     transform: none;
   }
 
-  .filter-nav button:hover {
-    color: var(--charcoal);
-    transform: none;
-  }
-
+  .filter-nav button:hover  { color: var(--charcoal); transform: none; }
   .filter-nav button.active {
     color: var(--accent);
     font-weight: 400;
@@ -845,49 +1039,54 @@ body {
   }
 
   .timeline::before,
-  .project::before {
-    display: none;
+  .project::before { display: none; }
+
+  .project.is-visible:hover { transform: translateY(0); }
+
+  .timeline { padding: 1.5rem 0 2vh 0; }
+
+  .project { padding: 2rem 0; }
+  .project p { font-size: 0.95rem; max-width: 100%; }
+
+  /* Gallery: single column — 2-up is too small at 360px */
+  .media-container.type-gallery { grid-template-columns: 1fr; }
+
+  /* Code tabs: tighter padding on phone */
+  .code-tab { padding: 0.4rem 0.75rem; }
+
+  .media-container.type-code pre[class*="language-"] {
+    padding: 1rem 1.25rem;
   }
 
-    .timeline {
-    /* explicit padding-top instead of 2vh — 2vh resolves to ~18px
-       on a 915px viewport which leaves no breathing room below the nav */
-    padding: 1.5rem 0 2vh 0;
+  .spec-label { min-width: 90px; }
+  .spec-row   { gap: 1rem; }
+
+  .live-badge  { display: none; }
+  .header-live { display: flex; }
+}
+
+/* ============================================================
+   REDUCED MOTION
+   Respects prefers-reduced-motion: reduce for users with vestibular
+   disorders or motion sensitivity. All CSS transitions and animations
+   collapse to near-instant. Cards become immediately visible.
+   JS also checks this flag — see script.js prefersReducedMotion const
+   which skips scramble text and stagger delays.
+   ============================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 
+  /* Skip entrance animation entirely — cards visible from the start */
   .project {
-    padding: 2rem 0;
-  }
-
-  .project h2 {
-    /* 1.75rem holds at 360px without wrapping on most titles */
-    font-size: 1.75rem;
-  }
-
-  .project p {
-    font-size: 0.95rem;
-    max-width: 100%;
-  }
-
-  /* Gallery collapses to single column — 2-up is too small on a phone */
-  .media-container.type-gallery {
-    grid-template-columns: 1fr;
-  }
-
-  .spec-label {
-    min-width: 90px;
-  }
-
-  .spec-row {
-    gap: 1rem;
-  }
-
-  /* Live badge moves to header on phone — hide sidebar version */
-  .live-badge {
-    display: none;
-  }
-
-  .header-live {
-    display: flex;
+    opacity: 1;
+    transform: none;
   }
 }

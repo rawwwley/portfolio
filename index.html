@@ -5,25 +5,27 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Riley Taylor | Portfolio</title>
 
-  <!-- [SWAP] Replace with a real description once the site has a clear angle -->
   <meta name="description" content="Riley Taylor — portfolio of engineering, web, 3D, photography, audio, and game design projects based in Seattle, WA." />
 
-  <!-- Open Graph — controls how the link renders when shared on Slack, Twitter, iMessage, etc. -->
-  <!-- [SWAP] og:image should be an absolute URL to a 1200x630 screenshot or hero image -->
+  <!-- [SWAP] og:image — absolute URL to a 1200x630 screenshot or hero image -->
   <meta property="og:title" content="Riley Taylor | Portfolio" />
   <meta property="og:description" content="Engineering, web, 3D, photography, audio, and game design projects based in Seattle, WA." />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://yourdomain.com/" />
   <meta property="og:image" content="https://yourdomain.com/og-image.jpg" />
 
-  <!-- [SWAP] Add a real favicon — simplest path is a 32x32 .ico or .png in root -->
+  <!-- [SWAP] Add a real favicon — 32x32 .ico or .png in root -->
   <!-- <link rel="icon" href="/favicon.ico" /> -->
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <!-- display=swap added — prevents invisible text flash during font load -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=Space+Grotesk:wght@300;400&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css" />
+
+  <!-- model-viewer — Google web component for interactive .glb/.gltf display.
+       type="module" defers by default — registers <model-viewer> before first paint.
+       [VERIFY] Check https://github.com/google/model-viewer/releases for latest version. -->
+  <script type="module" src="https://unpkg.com/@google/model-viewer@3.5.0/dist/model-viewer.min.js"></script>
 </head>
 <body>
 
@@ -32,7 +34,7 @@
     <!-- Mobile-only live indicator — shown by JS when live, hidden on desktop via CSS -->
     <div class="header-live" id="headerLive">
       <span class="header-live-pulse"></span>
-      <a href="https://www.twitch.tv/rawwwley" target="_blank" rel="noopener">LIVE</a>
+      <a href="https://www.twitch.tv/rawwwley" target="_blank" rel="noopener noreferrer">LIVE</a>
     </div>
     <div class="status-box">
       <span class="pulse"></span>
@@ -64,9 +66,127 @@
     <main class="timeline">
 
       <!-- ============================================================
+           PROJECT: This Portfolio
+           Tags: web
+           Media type: code (3 tabs — script, style, markup)
+           [SWAP] Replace GitHub href with actual repo URL
+           ============================================================ -->
+      <article class="project" data-tags="web" data-media="code">
+        <div class="proj-header">
+          <span class="mono-cat">Web & UX</span>
+          <span class="mono-tag">2026.03</span>
+        </div>
+        <h2>This Portfolio</h2>
+        <!-- Copy button sits at the right end of the tab bar via margin-left: auto.
+             Tab IDs scoped to this card — pattern: [card-slug]-[filename]. -->
+        <div class="code-tabs">
+          <button class="code-tab active" data-target="portfolio-js">script.js</button>
+          <button class="code-tab" data-target="portfolio-css">style.css</button>
+          <button class="code-tab" data-target="portfolio-html">index.html</button>
+          <button class="code-copy-btn" aria-label="Copy code">COPY</button>
+        </div>
+        <div class="media-container type-code">
+
+          <pre id="portfolio-js"><code class="language-javascript">// Text scramble — resolves random chars to target string left-to-right.
+// SCRAMBLE_DEPTH controls how many ticks a char stays noisy before locking.
+const SCRAMBLE_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_/.';
+const TICK_MS        = 25;
+const SCRAMBLE_DEPTH = 6;
+
+function scrambleText(element, targetText) {
+  if (scrambleInterval) clearInterval(scrambleInterval);
+  let tick = 0;
+  const totalTicks = SCRAMBLE_DEPTH + targetText.length;
+
+  scrambleInterval = setInterval(() => {
+    let out = '';
+    for (let i = 0; i < targetText.length; i++) {
+      if (targetText[i] === ' ') {
+        out += ' ';
+      } else if (i <= tick - SCRAMBLE_DEPTH) {
+        out += targetText[i]; // locked — real char visible
+      } else {
+        out += SCRAMBLE_CHARS[Math.floor(Math.random() * SCRAMBLE_CHARS.length)];
+      }
+    }
+    element.textContent = out;
+    if (++tick > totalTicks) {
+      clearInterval(scrambleInterval);
+      scrambleInterval = null;
+      element.textContent = targetText; // guarantee exact final string
+    }
+  }, TICK_MS);
+}</code></pre>
+
+          <pre id="portfolio-css" class="code-hidden"><code class="language-css">/* Cards enter invisible + below final position.
+   IntersectionObserver adds .is-visible when 5% scrolls in,
+   staggered 80ms per card in the same viewport batch. */
+.project {
+  opacity: 0.1;
+  transform: translateY(30px);
+  transition:
+    opacity  0.9s cubic-bezier(0.2, 0.8, 0.2, 1),
+    transform 0.9s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* Accent bar — scaleY(0) -> scaleY(1) on hover.
+   transform-origin: top draws it downward — reads as "activating". */
+.project::before {
+  content: '';
+  position: absolute;
+  left: -1.5rem;
+  top: 4rem; bottom: 4rem;
+  width: 2px;
+  background: var(--fog);
+  transform: scaleY(0);
+  transform-origin: top center;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.project.is-visible               { opacity: 1; transform: translateY(0); }
+.project.is-visible:hover         { transform: translateX(4px); }
+.project.is-visible:hover::before { transform: scaleY(1); }</code></pre>
+
+          <pre id="portfolio-html" class="code-hidden"><code class="language-html">&lt;!-- Audio player — custom UI drives a hidden native &lt;audio&gt; element.
+     Canvas oscilloscope: flat dashed line at idle, live waveform while playing.
+     AudioContext is initialized on first user gesture (browser requirement). --&gt;
+&lt;div class="media-container type-audio"
+     data-src="audio/demo.mp3"
+    &gt;
+  &lt;audio preload="metadata"&gt;&lt;/audio&gt;
+  &lt;div class="audio-player"&gt;
+    &lt;canvas class="audio-visualizer" aria-hidden="true"&gt;&lt;/canvas&gt;
+    &lt;div class="audio-controls"&gt;
+      &lt;button class="audio-play-btn" aria-label="Play" disabled&gt;
+        &lt;span class="audio-play-icon"&gt;&#9654;&lt;/span&gt;
+      &lt;/button&gt;
+      &lt;div class="audio-middle"&gt;
+        &lt;span class="audio-title"&gt;BROADCAST_DEMO_01&lt;/span&gt;
+        &lt;div class="audio-progress"
+             role="progressbar"
+             aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"&gt;
+          &lt;div class="audio-fill"&gt;&lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+      &lt;span class="audio-time"&gt;--:-- / --:--&lt;/span&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+
+        </div>
+        <p>Vanilla HTML/CSS/JS — no frameworks, no build step. Custom audio player with Web Audio API oscilloscope, scroll-reveal via IntersectionObserver with staggered entrance, Twitch live status polling, and a text scramble on the system header.</p>
+        <div class="stack">html, css, javascript, web audio api</div>
+        <!-- [SWAP] Replace href with actual GitHub repo URL once public -->
+        <div class="proj-links">
+          <a class="proj-link" href="https://github.com/rawwwley/portfolio" target="_blank" rel="noopener noreferrer">↗ github</a>
+        </div>
+      </article>
+
+      <!-- ============================================================
            PROJECT: FPGA Oscilloscope
-           Media type: technical (spec block, no image container)
-           [SWAP] Update spec-row values with real project data
+           Tags: eng
+           Media type: technical (spec block + 2-tab code)
+           [SWAP] Update spec values and code with real project data
            ============================================================ -->
       <article class="project" data-tags="eng" data-media="technical">
         <div class="proj-header">
@@ -75,7 +195,6 @@
         </div>
         <h2>FPGA Oscilloscope</h2>
         <p>High-speed signal capture using Verilog and an onboard DAC. Designed for sub-millisecond precision in lab environments.</p>
-        <!-- [SWAP] Replace spec values with real project specifications -->
         <div class="tech-specs">
           <div class="spec-row">
             <span class="spec-label">PLATFORM</span>
@@ -94,13 +213,67 @@
             <span class="spec-value">In Development</span>
           </div>
         </div>
+        <!-- [SWAP] Replace placeholder code with real project snippets. -->
+        <div class="code-tabs">
+          <button class="code-tab active" data-target="fpga-top">oscilloscope.v</button>
+          <button class="code-tab" data-target="fpga-xdc">constraints.xdc</button>
+          <button class="code-copy-btn" aria-label="Copy code">COPY</button>
+        </div>
+        <div class="media-container type-code">
+
+          <pre id="fpga-top"><code class="language-verilog">// osc_capture.v — top-level ADC capture module
+// [SWAP] Replace with real implementation
+module osc_capture #(
+  parameter DATA_WIDTH = 12,
+  parameter DEPTH      = 1024
+)(
+  input  wire                  clk,      // 100 MHz system clock
+  input  wire                  rst_n,    // active-low reset
+  input  wire [DATA_WIDTH-1:0] adc_data, // parallel ADC input
+  input  wire                  trigger,  // rising-edge capture start
+  output reg  [DATA_WIDTH-1:0] mem [0:DEPTH-1],
+  output reg                   capture_done
+);
+  integer i;
+  always @(posedge clk or negedge rst_n) begin
+    if (!rst_n) capture_done <= 1'b0;
+    else if (trigger) begin
+      for (i = 0; i < DEPTH; i = i + 1)
+        mem[i] <= adc_data;
+      capture_done <= 1'b1;
+    end
+  end
+endmodule</code></pre>
+
+          <pre id="fpga-xdc" class="code-hidden"><code class="language-tcl"># constraints.xdc — Artix-7 pin assignments
+# [SWAP] Replace with real mapping from your board schematic
+
+# 100 MHz system clock
+set_property PACKAGE_PIN W5      [get_ports clk]
+set_property IOSTANDARD LVCMOS33 [get_ports clk]
+create_clock -add -name sys_clk -period 10.00 [get_ports clk]
+
+# Active-low reset (BTN0)
+set_property PACKAGE_PIN U18     [get_ports rst_n]
+set_property IOSTANDARD LVCMOS33 [get_ports rst_n]
+
+# 12-bit ADC data bus — JA PMOD header
+set_property PACKAGE_PIN J1      [get_ports {adc_data[0]}]
+set_property PACKAGE_PIN L2      [get_ports {adc_data[1]}]
+set_property PACKAGE_PIN J2      [get_ports {adc_data[2]}]
+set_property PACKAGE_PIN G2      [get_ports {adc_data[3]}]
+set_property IOSTANDARD LVCMOS33 [get_ports {adc_data[*]}]</code></pre>
+
+        </div>
         <div class="stack">verilog, vivado, fpga, xilinx</div>
+        <!-- [SWAP] Add GitHub link once repo is public -->
       </article>
 
       <!-- ============================================================
            PROJECT: Space Invaders
+           Tags: game
            Media type: embed (live interactive demo)
-           [SWAP] Replace iframe src with actual hosted project URL
+           [SWAP] Replace placeholder with live iframe
            ============================================================ -->
       <article class="project" data-tags="game" data-media="embed">
         <div class="proj-header">
@@ -108,21 +281,19 @@
           <span class="mono-tag">2026.02</span>
         </div>
         <h2>Space Invaders</h2>
-        <!-- [SWAP] Replace div.media-placeholder with:
-             <iframe src="YOUR_PROJECT_URL" title="Space Invaders" allowfullscreen></iframe>
-             Add loading="lazy" once URL is live -->
         <div class="media-container type-embed">
           <div class="media-placeholder">[ LIVE_DEMO // EMBED_PENDING ]</div>
         </div>
         <p>A faithful recreation of the arcade classic built in vanilla HTML, CSS, and JavaScript. No canvas libraries — pure DOM manipulation and requestAnimationFrame.</p>
         <div class="stack">html, css, javascript</div>
+        <!-- [SWAP] Add GitHub link once repo is public -->
       </article>
 
       <!-- ============================================================
            PROJECT: UX Case Study
-           Media type: gallery (UX screens, wireframes, mockups)
+           Tags: web
+           Media type: gallery
            [SWAP] Replace gallery-cell divs with <img> tags
-                  src="path/to/image.jpg" alt="descriptive alt text"
            ============================================================ -->
       <article class="project" data-tags="web" data-media="gallery">
         <div class="proj-header">
@@ -130,9 +301,6 @@
           <span class="mono-tag">2025.12</span>
         </div>
         <h2>UX Case Study</h2>
-        <!-- [SWAP] Replace each gallery-cell with an <img> tag.
-             Recommended: 4 images for 2x2 grid, or 2 for single row.
-             Add/remove .gallery-cell elements as needed. -->
         <div class="media-container type-gallery">
           <div class="gallery-cell">SCR_01</div>
           <div class="gallery-cell">SCR_02</div>
@@ -145,19 +313,29 @@
 
       <!-- ============================================================
            PROJECT: Shardblade Concept Render
-           Media type: image (single hero render)
-           [SWAP] Replace div.media-placeholder with:
-                  <img src="path/to/render.jpg" alt="Shardblade concept render" />
+           Tags: 3d
+           Media type: 3d (model-viewer web component)
+           [SWAP] Replace placeholder with model-viewer element once .glb is ready:
+                  <model-viewer
+                    src="models/shardblade.glb"
+                    alt="Shardblade concept 3D model"
+                    camera-controls auto-rotate
+                    shadow-intensity="1" exposure="0.8"
+                    environment-image="neutral" tone-mapping="aces"
+                    ar>
+                  </model-viewer>
+           For custom HDR lighting: environment-image="path/to/env.hdr"
+           KHR_materials_transmission + KHR_materials_volume handle crystal/glass.
+           If you only have a static render (no .glb): change type-3d -> type-image.
            ============================================================ -->
-      <article class="project" data-tags="3d" data-media="image">
+      <article class="project" data-tags="3d" data-media="3d">
         <div class="proj-header">
           <span class="mono-cat">3D & Visual</span>
           <span class="mono-tag">2025.11</span>
         </div>
         <h2>Shardblade Concept Render</h2>
-        <!-- [SWAP] Replace div with: <img src="YOUR_IMAGE" alt="Shardblade concept render" /> -->
-        <div class="media-container type-image">
-          <div class="media-placeholder">[ RENDER // IMAGE_PENDING ]</div>
+        <div class="media-container type-3d">
+          <div class="media-placeholder">[ 3D_MODEL // PENDING ]</div>
         </div>
         <p>High-fidelity 3D modeling of epic fantasy weaponry, focusing on complex crystalline material shaders and subsurface scattering.</p>
         <div class="stack">blender, octane render, substance painter</div>
@@ -165,7 +343,8 @@
 
       <!-- ============================================================
            PROJECT: Cascade Winter Series
-           Media type: gallery (photo series)
+           Tags: photo
+           Media type: gallery
            [SWAP] Replace gallery-cell divs with <img> tags
            ============================================================ -->
       <article class="project" data-tags="photo" data-media="gallery">
@@ -174,8 +353,6 @@
           <span class="mono-tag">2025.10</span>
         </div>
         <h2>Cascade Winter Series</h2>
-        <!-- [SWAP] Replace each gallery-cell with an <img> tag.
-             Recommended: 4 images minimum for a photo series grid. -->
         <div class="media-container type-gallery">
           <div class="gallery-cell">IMG_01</div>
           <div class="gallery-cell">IMG_02</div>
@@ -188,9 +365,9 @@
 
       <!-- ============================================================
            PROJECT: Broadcast Audio Chain
+           Tags: audio
            Media type: audio (self-hosted custom player)
-           [SWAP] data-src with real audio file path, e.g. "audio/demo.mp3"
-                  data-title with track label (mono uppercase recommended)
+           [SWAP] data-src with real audio file path
            ============================================================ -->
       <article class="project" data-tags="audio" data-media="audio">
         <div class="proj-header">
@@ -198,23 +375,20 @@
           <span class="mono-tag">2025.09</span>
         </div>
         <h2>Broadcast Audio Chain</h2>
-        <div class="media-container type-audio" data-src="audio/alec_koff-pop-punk-487450.mp3" data-title="BROADCAST_DEMO_01">
+        <div class="media-container type-audio" data-src="audio/alec_koff-pop-punk-487450.mp3">
           <!-- Hidden native audio element — custom UI drives it via JS -->
           <audio preload="metadata"></audio>
           <div class="audio-player">
-            <!-- Oscilloscope canvas — idle: flat fog line, playing: live green waveform -->
+            <!-- Oscilloscope canvas — idle: flat dashed line, playing: live green waveform -->
             <canvas class="audio-visualizer" aria-hidden="true"></canvas>
-            <!-- Controls row: play btn | title + scrub | time -->
+            <!-- Full-bleed scrub bar — no horizontal padding so it reads as a ruler -->
+            <div class="audio-progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+              <div class="audio-fill"></div>
+            </div>
+            <!-- Text row is the play/pause control — click anywhere to toggle.
+                 Label scrambles between PLAY and PAUSE on state change. -->
             <div class="audio-controls">
-              <button class="audio-play-btn" aria-label="Play" disabled>
-                <span class="audio-play-icon">▶</span>
-              </button>
-              <div class="audio-middle">
-                <span class="audio-title">BROADCAST_DEMO_01</span>
-                <div class="audio-progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
-                  <div class="audio-fill"></div>
-                </div>
-              </div>
+              <span class="audio-title">PLAY</span>
               <span class="audio-time">--:-- / --:--</span>
             </div>
           </div>
@@ -224,14 +398,10 @@
       </article>
 
       <!-- ============================================================
-           PROJECT: Podcast — long-form embed (Spotify)
-           Media type: podcast (fixed-height iframe, 152px Spotify compact)
-           [SWAP] Replace div.media-placeholder with:
-           <iframe src="https://open.spotify.com/embed/episode/EPISODE_ID"
-             width="100%" height="152" frameborder="0"
-             allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-             loading="lazy">
-           </iframe>
+           PROJECT: Podcast Episode
+           Tags: audio
+           Media type: podcast
+           [SWAP] Fill in Apple/SoundCloud data-embed URLs when live
            ============================================================ -->
       <article class="project" data-tags="audio" data-media="podcast">
         <div class="proj-header">
@@ -239,9 +409,6 @@
           <span class="mono-tag">2025.08</span>
         </div>
         <h2>Podcast Episode</h2>
-        <!-- Platform tab switcher — active tab drives the iframe src below.
-             [SWAP] Fill in data-embed URLs for Apple and SoundCloud when live.
-             Remove 'disabled' attribute from those buttons at the same time. -->
         <div class="platform-tabs">
           <button class="platform-tab active"
             data-embed="https://open.spotify.com/embed/episode/5XzSGHXAieVeXkPTLYZncV?theme=0">
@@ -262,9 +429,8 @@
       </article>
 
       <!-- ============================================================
-           PROJECT: Short Documentary / Video Project
-           Media type: video (YouTube or Vimeo embed)
-           [SWAP] Replace div.media-placeholder with YouTube iframe
+           PROJECT: Short Documentary
+           Tags: video
            ============================================================ -->
       <article class="project" data-tags="video" data-media="video">
         <div class="proj-header">
@@ -272,12 +438,6 @@
           <span class="mono-tag">2025.07</span>
         </div>
         <h2>Short Documentary</h2>
-        <!-- [SWAP] Replace div with YouTube embed:
-             <iframe src="https://www.youtube.com/embed/VIDEO_ID"
-               title="Short Documentary"
-               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-               allowfullscreen>
-             </iframe> -->
         <div class="media-container type-video">
           <iframe src="https://www.youtube.com/embed/5moaiVoHLHY?rel=0&color=white&modestbranding=1"
             title="Short Documentary"
@@ -292,9 +452,10 @@
 
       <!-- ============================================================
            PROJECT: Unity Environment Concept
-           Media type: embed (WebGL build) or image fallback
-           [SWAP] Replace div.media-placeholder with WebGL iframe
-                  or a hero screenshot if WebGL build isn't hosted
+           Tags: game
+           [SWAP] Option A — WebGL: replace placeholder with iframe
+           [SWAP] Option B — Blender .glb: change to type-3d + model-viewer
+           [SWAP] Option C — Screenshots: change to type-gallery
            ============================================================ -->
       <article class="project" data-tags="game" data-media="embed">
         <div class="proj-header">
@@ -302,10 +463,6 @@
           <span class="mono-tag">2025.05</span>
         </div>
         <h2>Unity Environment Concept</h2>
-        <!-- [SWAP] Option A — WebGL build:
-             <iframe src="YOUR_WEBGL_BUILD_URL" title="Unity Environment" allowfullscreen></iframe>
-             Option B — Screenshot gallery if WebGL isn't hosted:
-             Change data-media="gallery" and use gallery structure above -->
         <div class="media-container type-embed">
           <div class="media-placeholder">[ WEBGL_BUILD // EMBED_PENDING ]</div>
         </div>
@@ -315,8 +472,9 @@
 
       <!-- ============================================================
            PROJECT: Automated Network Auditor
-           Media type: technical (spec block, no image container)
-           [SWAP] Update spec-row values with real project data
+           Tags: eng
+           Media type: technical (spec block + 2-tab code)
+           [SWAP] Update spec values and code with real project data
            ============================================================ -->
       <article class="project" data-tags="eng" data-media="technical">
         <div class="proj-header">
@@ -325,7 +483,6 @@
         </div>
         <h2>Automated Network Auditor</h2>
         <p>A local utility that recursively scans network folders and SharePoint to clean up naming conventions and generate integrity reports.</p>
-        <!-- [SWAP] Replace spec values with real project specifications -->
         <div class="tech-specs">
           <div class="spec-row">
             <span class="spec-label">RUNTIME</span>
@@ -344,6 +501,71 @@
             <span class="spec-value">Deployed Internally</span>
           </div>
         </div>
+        <!-- [SWAP] Replace placeholders with real snippets. Add tabs freely. -->
+        <div class="code-tabs">
+          <button class="code-tab active" data-target="auditor-main">auditor.js</button>
+          <button class="code-tab" data-target="auditor-rules">naming-rules.js</button>
+          <button class="code-copy-btn" aria-label="Copy code">COPY</button>
+        </div>
+        <div class="media-container type-code">
+
+          <pre id="auditor-main"><code class="language-javascript">// auditor.js — recursive SharePoint folder scanner
+// [SWAP] Replace with real implementation
+async function auditFolder(ctx, folderUrl, results = []) {
+  const items = await ctx.web
+    .getFolderByServerRelativeUrl(folderUrl)
+    .files.select('Name', 'ServerRelativeUrl', 'TimeLastModified')();
+
+  for (const file of items) {
+    const issues = checkNamingConvention(file.Name);
+    if (issues.length) {
+      results.push({
+        path:     file.ServerRelativeUrl,
+        modified: file.TimeLastModified,
+        issues
+      });
+    }
+  }
+
+  const subFolders = await ctx.web
+    .getFolderByServerRelativeUrl(folderUrl)
+    .folders.select('ServerRelativeUrl')();
+
+  for (const folder of subFolders) {
+    await auditFolder(ctx, folder.ServerRelativeUrl, results);
+  }
+
+  return results;
+}</code></pre>
+
+          <pre id="auditor-rules" class="code-hidden"><code class="language-javascript">// naming-rules.js — convention checker
+// [SWAP] Replace with your organization's actual naming standards
+const RULES = [
+  {
+    id:   'no-spaces',
+    test: name => !/ /.test(name),
+    msg:  'Filename contains spaces — use underscores or hyphens'
+  },
+  {
+    id:   'date-prefix',
+    // Expects YYYY-MM-DD or YYYYMMDD at start of filename
+    test: name => /^(\d{4}-\d{2}-\d{2}|\d{8})/.test(name),
+    msg:  'Missing date prefix (expected YYYY-MM-DD)'
+  },
+  {
+    id:   'no-special-chars',
+    test: name => !/[#%&{}\\<>*?/$!'":@+`|=]/.test(name),
+    msg:  'Contains characters invalid in SharePoint paths'
+  }
+];
+
+export function checkNamingConvention(filename) {
+  return RULES
+    .filter(rule => !rule.test(filename))
+    .map(rule => ({ rule: rule.id, message: rule.msg }));
+}</code></pre>
+
+        </div>
         <div class="stack">node.js, python, sharepoint api, regex</div>
       </article>
 
@@ -351,5 +573,12 @@
   </div>
 
   <script src="js/script.js"></script>
+
+  <!-- Prism.js syntax highlighting.
+       Core engine + autoloader — grammars fetched on demand, no upfront bundle.
+       Loaded after page content to avoid render blocking.
+       Highlights all code[class*="language-"] elements including .code-hidden ones. -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
 </body>
 </html>

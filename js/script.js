@@ -1,9 +1,14 @@
 document.addEventListener('DOMContentLoaded', () => {
-  const buttons = document.querySelectorAll('.filter-nav button');
+  const buttons  = document.querySelectorAll('.filter-nav button');
   const projects = document.querySelectorAll('.project');
 
+  // Checked once at load — used throughout to skip animations for users
+  // who have requested reduced motion in their OS accessibility settings.
+  // Affects: stagger delays, text scramble, oscilloscope draw loop.
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
   // 1. Filtering Logic
-  // Out-animation duration must match the CSS .filtered-out transition (300ms).
+  // Out-animation duration must match the CSS .filtered-out transition (240ms).
   const FILTER_OUT_MS = 240;
 
   buttons.forEach(btn => {
@@ -30,14 +35,11 @@ document.addEventListener('DOMContentLoaded', () => {
       // something to animate from (can't fade what's display:none).
       toHide.forEach(proj => {
         proj.classList.remove('filtered-hidden');
-        // Force a reflow so the browser registers the unhidden state
-        // before we add filtered-out — otherwise the transition won't fire.
-        proj.getBoundingClientRect();
+        proj.getBoundingClientRect(); // force reflow so transition fires
         proj.classList.add('filtered-out');
       });
 
-      // Step 2 — after out-animation completes, collapse hidden cards
-      // and reveal incoming ones via the observer (which handles stagger).
+      // Step 2 — collapse hidden cards and reveal incoming ones.
       setTimeout(() => {
         toHide.forEach(proj => {
           proj.classList.add('filtered-hidden');
@@ -48,7 +50,6 @@ document.addEventListener('DOMContentLoaded', () => {
           // filtered-in gives incoming cards their own transition timing
           proj.classList.add('filtered-in');
           observer.observe(proj);
-          // Clean up helper class once it's done its job
           setTimeout(() => proj.classList.remove('filtered-in'), 320);
         });
 
@@ -69,31 +70,27 @@ document.addEventListener('DOMContentLoaded', () => {
     threshold: 0.05
   };
 
-  // Stagger interval between cards in the same batch (ms).
-  // 80ms is perceptible but doesn't make the last card feel late —
-  // at 9 cards max that's 640ms of total offset, well within the
-  // 0.9s transition duration so cards are still overlapping in motion.
+  // 80ms stagger — perceptible but the last card in a 9-card batch is only
+  // 640ms delayed, well within the 0.9s transition so cards overlap in motion.
   const STAGGER_MS = 80;
 
   const observer = new IntersectionObserver((entries) => {
-    // Filter to only newly-intersecting entries and sort top-to-bottom.
-    // Sorting matters because IntersectionObserver doesn't guarantee
-    // delivery order — without this, stagger direction would be random.
+    // Sort top-to-bottom — IntersectionObserver doesn't guarantee delivery order.
     const visible = entries
       .filter(e => e.isIntersecting)
       .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
 
     visible.forEach((entry, batchIndex) => {
       const el = entry.target;
-      const delay = batchIndex * STAGGER_MS;
+      // Skip stagger for reduced-motion users — all cards appear instantly
+      const delay = prefersReducedMotion ? 0 : batchIndex * STAGGER_MS;
 
       el.style.transitionDelay = `${delay}ms`;
       el.classList.add('is-visible');
       observer.unobserve(el);
 
-      // Clear the inline delay once the transition finishes so it
-      // doesn't affect anything that re-observes this element later.
-      // Timeout = transition duration (900ms) + this card's delay.
+      // Clear inline delay once transition finishes so it doesn't
+      // affect elements that get re-observed later (e.g. after filtering).
       setTimeout(() => {
         el.style.transitionDelay = '';
       }, 900 + delay);
@@ -103,7 +100,7 @@ document.addEventListener('DOMContentLoaded', () => {
   projects.forEach(p => observer.observe(p));
 
   // 3. Dynamic System Header
-  // Force Seattle time regardless of viewer's locale
+  // Force Seattle time regardless of viewer's locale.
   function getSeattleHour() {
     return parseInt(new Date().toLocaleString('en-US', {
       timeZone: 'America/Los_Angeles',
@@ -118,13 +115,22 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // 4. Text Scramble
+  // Resolves random chars to target string left-to-right.
+  // SCRAMBLE_DEPTH controls how many ticks a char stays noisy before locking.
   const SCRAMBLE_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_/.';
-  const TICK_MS = 25;
+  const TICK_MS        = 25;
   const SCRAMBLE_DEPTH = 6;
 
+  // Global interval for the header scramble — one at a time.
   let scrambleInterval = null;
 
   function scrambleText(element, targetText) {
+    // Skip animation for reduced-motion users — set text directly
+    if (prefersReducedMotion) {
+      element.textContent = targetText;
+      return;
+    }
+
     if (scrambleInterval) clearInterval(scrambleInterval);
 
     let tick = 0;
@@ -136,7 +142,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (targetText[i] === ' ') {
           out += ' ';
         } else if (i <= tick - SCRAMBLE_DEPTH) {
-          out += targetText[i];
+          out += targetText[i]; // locked — real char visible
         } else {
           out += SCRAMBLE_CHARS[Math.floor(Math.random() * SCRAMBLE_CHARS.length)];
         }
@@ -147,7 +153,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (tick > totalTicks) {
         clearInterval(scrambleInterval);
         scrambleInterval = null;
-        element.textContent = targetText;
+        element.textContent = targetText; // guarantee exact final string
       }
     }, TICK_MS);
   }
@@ -175,15 +181,16 @@ document.addEventListener('DOMContentLoaded', () => {
   updateSystemStatus();
   setInterval(updateSystemStatus, 10000);
 
-
-
   // 5. Custom Audio Players + Oscilloscope Visualizer
-  // Each player gets its own AudioContext initialized on first play
-  // (browsers block AudioContext creation before a user gesture).
+  // Text row is the play/pause control — no button element.
+  // Label scrambles between PLAY and PAUSE on every toggle.
   // Multiple players are mutually exclusive — playing one pauses others.
+  // AudioContext is initialised on first play (browser gesture gate).
+  // Safari fix: resume() called before every play — Safari can suspend
+  // the context even after a user gesture has been registered.
 
   const audioContainers = document.querySelectorAll('.media-container.type-audio');
-  const allPlayers = [];
+  const allPlayers      = [];
 
   function formatTime(seconds) {
     if (isNaN(seconds) || seconds === Infinity) return '--:--';
@@ -192,114 +199,156 @@ document.addEventListener('DOMContentLoaded', () => {
     return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
   }
 
-  // Draw a flat idle line on the canvas — called before AudioContext init
-  // and after pause so there's always something visible.
+  // Flat idle line — dashed at rest, replaced by live waveform when playing
   function drawFlatLine(canvas) {
     const dpr = window.devicePixelRatio || 1;
-    const ctx = canvas.getContext('2d');
-    const w = canvas.width / dpr;
-    const h = canvas.height / dpr;
+    const ctx  = canvas.getContext('2d');
+    const w    = canvas.width / dpr;
+    const h    = canvas.height / dpr;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    // Idle baseline — opacity matches card border weight so it reads
-    // as instrumentation rather than empty space
     ctx.beginPath();
     ctx.strokeStyle = 'rgba(134, 134, 139, 0.5)';
-    ctx.lineWidth = 1;
-    ctx.setLineDash([4, 6]); // dashed at idle — solid when playing
+    ctx.lineWidth   = 1;
+    ctx.setLineDash([4, 6]);
     ctx.moveTo(0, h / 2);
     ctx.lineTo(w, h / 2);
     ctx.stroke();
-    ctx.setLineDash([]); // reset dash for any subsequent draws
+    ctx.setLineDash([]);
   }
 
   // Size canvas to physical pixels for crisp retina rendering.
-  // Called once on init and again if the window resizes.
+  // Called once on init and on window resize.
   function sizeCanvas(canvas) {
-    const dpr = window.devicePixelRatio || 1;
+    const dpr  = window.devicePixelRatio || 1;
     const rect = canvas.getBoundingClientRect();
-    canvas.width = rect.width * dpr;
+    canvas.width  = rect.width  * dpr;
     canvas.height = rect.height * dpr;
     canvas.getContext('2d').scale(dpr, dpr);
   }
 
   audioContainers.forEach(container => {
     const audio    = container.querySelector('audio');
-    const playBtn  = container.querySelector('.audio-play-btn');
-    const playIcon = container.querySelector('.audio-play-icon');
+    const titleEl  = container.querySelector('.audio-title');
     const fill     = container.querySelector('.audio-fill');
     const progress = container.querySelector('.audio-progress');
     const timeEl   = container.querySelector('.audio-time');
     const canvas   = container.querySelector('.audio-visualizer');
+    const controls = container.querySelector('.audio-controls');
     const src      = container.dataset.src;
 
-    let audioCtx   = null;
-    let analyser   = null;
-    let animFrame  = null;
+    let audioCtx    = null;
+    let analyser    = null;
+    let animFrame   = null;
+    // Per-player scramble interval — isolated from the global header scramble
+    let labelScramble = null;
 
-    // Size canvas and draw idle line immediately
     sizeCanvas(canvas);
     drawFlatLine(canvas);
 
     if (src) {
       audio.src = src;
-      playBtn.disabled = false;
+      controls.style.cursor = 'pointer';
     }
 
-    allPlayers.push({ audio, playBtn, playIcon, canvas, stopViz });
+    // Scramble the audio label to a target string.
+    // Uses the same SCRAMBLE_CHARS/TICK_MS/DEPTH as the header scramble
+    // but runs its own interval so they never stomp each other.
+    function scrambleLabel(target) {
+      // Skip animation for reduced-motion users
+      if (prefersReducedMotion) {
+        titleEl.textContent = target;
+        return;
+      }
 
-    // Initialize Web Audio API on first play — must be after user gesture
+      if (labelScramble) clearInterval(labelScramble);
+      let tick = 0;
+      const totalTicks = SCRAMBLE_DEPTH + target.length;
+
+      labelScramble = setInterval(() => {
+        let out = '';
+        for (let i = 0; i < target.length; i++) {
+          if (target[i] === ' ') {
+            out += ' ';
+          } else if (i <= tick - SCRAMBLE_DEPTH) {
+            out += target[i];
+          } else {
+            out += SCRAMBLE_CHARS[Math.floor(Math.random() * SCRAMBLE_CHARS.length)];
+          }
+        }
+        titleEl.textContent = out;
+        tick++;
+        if (tick > totalTicks) {
+          clearInterval(labelScramble);
+          labelScramble = null;
+          titleEl.textContent = target;
+        }
+      }, TICK_MS);
+    }
+
+    // Reset to idle — scrambles back to PLAY, stops visualiser
+    function setIdle() {
+      titleEl.classList.remove('is-playing');
+      scrambleLabel('PLAY');
+      stopViz();
+    }
+
+    allPlayers.push({ audio, setIdle, canvas });
+
     function initAudioContext() {
-      if (audioCtx) return;
-      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      analyser = audioCtx.createAnalyser();
-      // fftSize 2048 gives 1024 data points — smooth line without excess noise
-      analyser.fftSize = 2048;
-      // Higher smoothing = cleaner oscilloscope trace, less chaotic noise
+      if (audioCtx) {
+        // Safari can suspend the context even after a user gesture —
+        // always attempt to resume before playing
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        return;
+      }
+      audioCtx  = new (window.AudioContext || window.webkitAudioContext)();
+      analyser  = audioCtx.createAnalyser();
+      analyser.fftSize               = 2048;
       analyser.smoothingTimeConstant = 0.92;
       const source = audioCtx.createMediaElementSource(audio);
       source.connect(analyser);
       analyser.connect(audioCtx.destination);
     }
 
-    // Live oscilloscope draw loop — runs only while playing
+    // Live oscilloscope — runs only while playing.
+    // Skipped for reduced-motion users (flat line stays visible instead).
     function startViz() {
-      const dpr = window.devicePixelRatio || 1;
-      const ctx = canvas.getContext('2d');
+      if (prefersReducedMotion) return;
+
+      const dpr          = window.devicePixelRatio || 1;
+      const ctx          = canvas.getContext('2d');
       const bufferLength = analyser.frequencyBinCount;
-      const dataArray = new Uint8Array(bufferLength);
-      const w = canvas.width / dpr;
-      const h = canvas.height / dpr;
+      const dataArray    = new Uint8Array(bufferLength);
+      const w            = canvas.width  / dpr;
+      const h            = canvas.height / dpr;
 
       function draw() {
         animFrame = requestAnimationFrame(draw);
         analyser.getByteTimeDomainData(dataArray);
-
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
         // Baseline — drawn first so waveform renders on top
         ctx.beginPath();
         ctx.strokeStyle = 'rgba(134, 134, 139, 0.2)';
-        ctx.lineWidth = 1;
+        ctx.lineWidth   = 1;
         ctx.moveTo(0, h / 2);
         ctx.lineTo(w, h / 2);
         ctx.stroke();
 
         ctx.beginPath();
-        ctx.strokeStyle = '#5b8266';
-        ctx.lineWidth = 1.5;
-        ctx.lineJoin = 'round';
+        ctx.strokeStyle = '#5b8266'; // direct hex — var() not available in canvas 2D
+        ctx.lineWidth   = 1.5;
+        ctx.lineJoin    = 'round';
 
         const sliceWidth = w / bufferLength;
         let x = 0;
-
         for (let i = 0; i < bufferLength; i++) {
-          // dataArray values are 0–255, 128 = zero crossing (flat line)
+          // dataArray values are 0–255; 128 = zero crossing (flat line)
           const v = dataArray[i] / 128.0;
           const y = (v * h) / 2;
           i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
           x += sliceWidth;
         }
-
         ctx.lineTo(w, h / 2);
         ctx.stroke();
       }
@@ -315,28 +364,34 @@ document.addEventListener('DOMContentLoaded', () => {
       drawFlatLine(canvas);
     }
 
-    // Play / pause toggle
-    playBtn.addEventListener('click', () => {
+    // Text row is the play/pause control
+    controls.addEventListener('click', () => {
+      if (!src) return;
+
       if (audio.paused) {
-        // Pause all other players
+        // Pause all other players before starting this one
         allPlayers.forEach(p => {
           if (p.audio !== audio && !p.audio.paused) {
             p.audio.pause();
-            p.playBtn.classList.remove('is-playing');
-            p.playIcon.textContent = '▶';
-            p.stopViz();
+            p.setIdle();
           }
         });
+
         initAudioContext();
-        audio.play();
-        playBtn.classList.add('is-playing');
-        playIcon.textContent = '⏸';
+
+        // audio.play() returns a Promise — catch rejects to handle
+        // autoplay policy blocks or missing files gracefully
+        audio.play().catch(err => {
+          console.warn('Audio playback failed:', err.message);
+          setIdle(); // reset label and visualiser on failure
+        });
+
+        titleEl.classList.add('is-playing');
+        scrambleLabel('PAUSE');
         startViz();
       } else {
         audio.pause();
-        playBtn.classList.remove('is-playing');
-        playIcon.textContent = '▶';
-        stopViz();
+        setIdle();
       }
     });
 
@@ -353,49 +408,120 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     audio.addEventListener('ended', () => {
-      playBtn.classList.remove('is-playing');
-      playIcon.textContent = '▶';
-      fill.style.width = '0%';
+      fill.style.width   = '0%';
       timeEl.textContent = `00:00 / ${formatTime(audio.duration)}`;
-      stopViz();
+      setIdle();
     });
 
-    // Scrub on click
+    // Scrub bar is a separate click target from the controls row
     progress.addEventListener('click', e => {
       if (!audio.duration) return;
       const rect = progress.getBoundingClientRect();
       audio.currentTime = ((e.clientX - rect.left) / rect.width) * audio.duration;
     });
+  });
 
-    // Re-size canvas on window resize so the waveform doesn't stretch
-    window.addEventListener('resize', () => {
-      sizeCanvas(canvas);
-      if (audio.paused) drawFlatLine(canvas);
-      // If playing, the draw loop will naturally redraw next frame
-    });
+  // Single debounced resize handler — registering inside forEach creates N listeners
+  let resizeTimeout;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimeout);
+    resizeTimeout = setTimeout(() => {
+      allPlayers.forEach(({ audio, canvas }) => {
+        sizeCanvas(canvas);
+        // If paused, redraw idle line at new dimensions.
+        // If playing, the draw loop redraws on the next rAF tick naturally.
+        if (audio.paused) drawFlatLine(canvas);
+      });
+    }, 100);
   });
 
   // 6. Platform Tab Switcher (podcast embeds)
+  // Finds the iframe in the immediately following .media-container sibling.
+  document.querySelectorAll('.platform-tabs').forEach(tabGroup => {
+    const iframe = tabGroup.nextElementSibling?.querySelector('iframe');
 
-  // 7. Twitch Live Status
-  // Client credentials flow: fetch app access token, then poll stream status.
-  // Token is cached in memory for the session — re-fetched only on expiry.
-  // Polls every 60 seconds. Badge appears/disappears based on live state.
+    tabGroup.querySelectorAll('.platform-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        if (tab.disabled || !tab.dataset.embed) return;
+
+        tabGroup.querySelectorAll('.platform-tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+
+        if (iframe) iframe.src = tab.dataset.embed;
+      });
+    });
+  });
+
+  // 7. Code Block Tab Switcher
+  // Each .code-tabs group controls pre elements inside its immediately
+  // following .media-container.type-code sibling.
+  // Inactive pres get .code-hidden (visibility: hidden, still in layout)
+  // rather than display: none (removes from layout).
+  // This keeps the container height stable — always sized by the tallest tab.
+  document.querySelectorAll('.code-tabs').forEach(tabGroup => {
+    const codeBlock = tabGroup.nextElementSibling;
+
+    tabGroup.querySelectorAll('.code-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        const targetId = tab.dataset.target;
+
+        tabGroup.querySelectorAll('.code-tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+
+        codeBlock.querySelectorAll('pre').forEach(pre => {
+          pre.classList.toggle('code-hidden', pre.id !== targetId);
+        });
+      });
+    });
+  });
+
+  // 7b. Copy Button
+  // Clipboard API requires HTTPS or localhost — works on GitHub Pages, not file://.
+  document.querySelectorAll('.code-copy-btn').forEach(btn => {
+    let resetTimeout;
+
+    btn.addEventListener('click', async () => {
+      const codeBlock  = btn.closest('.code-tabs').nextElementSibling;
+      const visiblePre = codeBlock.querySelector('pre:not(.code-hidden)');
+      if (!visiblePre || !navigator.clipboard) return;
+
+      try {
+        await navigator.clipboard.writeText(visiblePre.textContent);
+        btn.textContent = 'COPIED';
+        btn.classList.add('is-copied');
+        clearTimeout(resetTimeout);
+        resetTimeout = setTimeout(() => {
+          btn.textContent = 'COPY';
+          btn.classList.remove('is-copied');
+        }, 2000);
+      } catch {
+        // Clipboard write failed (permissions denied, etc.) — fail silently
+      }
+    });
+  });
+
+  // 8. Twitch Live Status
+  // Client credentials flow: app access token cached in memory, re-fetched on expiry.
+  // Polls every 60s. Badge appears/disappears based on live state.
+  //
+  // SECURITY NOTE: client_secret is readable by anyone who views source.
+  // Risk is limited (public read-only stream status data), but architecturally wrong.
+  // [ACTION] Rotate the secret at https://dev.twitch.tv/console/apps — especially
+  // if this repo is or ever was public. Rotating resets the clock but doesn't fix
+  // the underlying exposure. Real fix: serverless proxy (Netlify/Vercel functions)
+  // at the Astro migration when a deployment pipeline is added.
 
   const TWITCH_CLIENT_ID     = 'nzwdzxpnnkga4qhh1h6a543ekj204z';
   const TWITCH_CLIENT_SECRET = 'j2q6nru1cqc4xexwgakhibwv5h5myx';
   const TWITCH_CHANNEL       = 'rawwwley';
   const POLL_INTERVAL_MS     = 60000;
 
-  // Platform config — Twitch is auto-detected via API and always present.
-  // Set youtube: false on sessions where you're not simulcasting.
+  // [SWAP] Set youtube.active: false on sessions where you're not simulcasting.
   const STREAM_PLATFORMS = {
     twitch:  { label: 'TWITCH',  url: 'https://www.twitch.tv/rawwwley' },
     youtube: { label: 'YOUTUBE', url: 'https://www.youtube.com/@rawwwleyy/live', active: true }
   };
 
-  // Build the links row from STREAM_PLATFORMS config.
-  // Called once — re-runs if config changes at runtime.
   function buildLiveLinks() {
     const container = document.getElementById('liveLinks');
     if (!container) return;
@@ -407,17 +533,17 @@ document.addEventListener('DOMContentLoaded', () => {
     ];
 
     activePlatforms.forEach((platform, i) => {
-      const a = document.createElement('a');
-      a.href = platform.url;
+      const a   = document.createElement('a');
+      a.href    = platform.url;
       a.textContent = platform.label;
-      a.target = '_blank';
-      a.rel = 'noopener';
+      a.target  = '_blank';
+      // noreferrer prevents destination from reading referrer URL; implies noopener
+      a.rel     = 'noopener noreferrer';
       container.appendChild(a);
 
-      // Add separator between links, not after the last one
       if (i < activePlatforms.length - 1) {
-        const sep = document.createElement('span');
-        sep.className = 'live-sep';
+        const sep       = document.createElement('span');
+        sep.className   = 'live-sep';
         sep.textContent = '/';
         container.appendChild(sep);
       }
@@ -427,7 +553,7 @@ document.addEventListener('DOMContentLoaded', () => {
   buildLiveLinks();
 
   let twitchToken    = null;
-  let twitchTokenExp = 0; // unix ms timestamp of expiry
+  let twitchTokenExp = 0;
 
   async function fetchTwitchToken() {
     const res = await fetch(
@@ -435,7 +561,7 @@ document.addEventListener('DOMContentLoaded', () => {
       { method: 'POST' }
     );
     if (!res.ok) throw new Error(`Token fetch failed: ${res.status}`);
-    const data = await res.json();
+    const data     = await res.json();
     twitchToken    = data.access_token;
     // expires_in is in seconds — store as ms with 60s buffer
     twitchTokenExp = Date.now() + (data.expires_in - 60) * 1000;
@@ -446,7 +572,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!badge) return;
 
     try {
-      // Re-fetch token if missing or within 60s of expiry
       if (!twitchToken || Date.now() >= twitchTokenExp) {
         await fetchTwitchToken();
       }
@@ -455,24 +580,22 @@ document.addEventListener('DOMContentLoaded', () => {
         `https://api.twitch.tv/helix/streams?user_login=${TWITCH_CHANNEL}`,
         {
           headers: {
-            'Client-ID': TWITCH_CLIENT_ID,
+            'Client-ID':     TWITCH_CLIENT_ID,
             'Authorization': `Bearer ${twitchToken}`
           }
         }
       );
 
       if (!res.ok) {
-        // 401 means token expired early — clear and retry next poll
+        // 401 = token expired early — clear so next poll re-fetches
         if (res.status === 401) twitchToken = null;
         throw new Error(`Stream check failed: ${res.status}`);
       }
 
-      const data = await res.json();
-      // data.data is non-empty when channel is live
+      const data   = await res.json();
       const isLive = data.data && data.data.length > 0;
       badge.classList.toggle('is-live', isLive);
 
-      // Also toggle the compact header indicator for mobile/tablet
       const headerLive = document.getElementById('headerLive');
       if (headerLive) headerLive.classList.toggle('is-live', isLive);
 
