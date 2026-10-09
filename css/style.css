@@ -1090,3 +1090,22 @@ body {
     transform: none;
   }
 }
+
+/* ============================================================
+   ACCESSIBILITY
+   Skip link — visible only when focused.
+   ============================================================ */
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 6px;
+  background: var(--dark);
+  color: var(--light);
+  padding: 8px;
+  text-decoration: none;
+  z-index: 1000;
+}
+
+.skip-link:focus {
+  top: 6px;
+}

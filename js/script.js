@@ -512,7 +512,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // at the Astro migration when a deployment pipeline is added.
 
   const TWITCH_CLIENT_ID     = 'nzwdzxpnnkga4qhh1h6a543ekj204z';
-  const TWITCH_CLIENT_SECRET = 'j2q6nru1cqc4xexwgakhibwv5h5myx';
+  // SECRET REMOVED FOR SECURITY - IMPLEMENTED SERVERLESS PROXY
   const TWITCH_CHANNEL       = 'rawwwley';
   const POLL_INTERVAL_MS     = 60000;
 
